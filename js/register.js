@@ -20,7 +20,7 @@ $(document).ready(function() {
         email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // Standard email pattern (max 50 chars per DB)
         password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/, // At least 8 chars, 1 lowercase, 1 uppercase, 1 digit
         city: /^[a-zA-Z\s]{2,30}$/, // 2-30 characters, letters and spaces (per DB schema)
-        contact: /^\d{7,10}$/ // 7-10 digits only
+        contact: v => /^\+?\d{7,15}$/.test(v) // 7-15 digits only
     };
 
     // Validation messages

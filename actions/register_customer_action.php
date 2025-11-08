@@ -74,9 +74,9 @@ if (!filter_var($input['customer_email'], FILTER_VALIDATE_EMAIL)) {
     json_response(false, 'Invalid email format');
 }
 
-// Contact pattern - only digits, 7-10 digits
-if (!preg_match('/^\d{7,10}$/', $input['customer_contact'])) {
-    json_response(false, 'Contact number must be 7-10 digits only');
+// Contact pattern - only digits, 7-15 digits
+if (!preg_match('/^\+?\d{7,15}$/', $input['customer_contact'])) {
+    json_response(false, 'Contact number must be 7-15 digits only');
 }
 
 // Password checks
@@ -92,7 +92,7 @@ if (mb_strlen($input['customer_name']) > 100) json_response(false, 'Name too lon
 if (mb_strlen($input['customer_email']) > 100) json_response(false, 'Email too long (max 100 chars)');
 if (mb_strlen($input['customer_country']) > 50) json_response(false, 'Country too long (max 50 chars)');
 if (mb_strlen($input['customer_city']) > 50) json_response(false, 'City too long (max 50 chars)');
-if (mb_strlen($input['customer_contact']) > 10) json_response(false, 'Contact number must be 7-10 digits only');
+if (mb_strlen($input['customer_contact']) > 15) json_response(false, 'Contact number must be 7-15 digits only');
 
 // user_role: default to 2 (customer)
 $user_role = 2;

@@ -303,7 +303,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="customer_contact" class="form-label">Contact Number <i class="fa fa-phone"></i></label>
+                                <label for="customer_contact" class="form-label">Phone Number <i class="fa fa-phone"></i></label>
                                 <input type="tel" class="form-control" id="customer_contact" name="customer_contact" placeholder="Enter your contact number (7-10 digits)" required maxlength="10" pattern="[0-9]{7,10}">
                             </div>
 
@@ -359,7 +359,8 @@
             password: v => v && v.length >= 8,
             country: v => v && v.trim().length > 0 && v.length <= 50,
             city: v => v && v.trim().length > 0 && v.length <= 50,
-            contact: v => /^\d{7,10}$/.test(v)
+            contact: v => /^\+?\d{7,15}$/.test(v)
+
         };
 
         // Optional: live email availability check
