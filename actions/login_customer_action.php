@@ -30,6 +30,55 @@ if (isset($_SESSION['customer_id']) && !empty($_SESSION['customer_id'])) {
     json_response(true, 'Already logged in', ['customer' => $info]);
 }
 
+// Collect and validate input
+$required = ['customer_email', 'customer_pass'];
+$input = [];
+
+foreach ($required as $field) {
+    if (!isset($_POST[$field]) || trim($_POST[$field]) === '') {
+        json_response(false, "Field {$field} is required");
+    }
+    $input[$field] = trim($_POST[$field]);
+}
+
+if (!filter_var($input['customer_email'], FILTER_VALIDATE_EMAIL)) {
+    json_response(false, 'Invalid email format');
+}
+
+// --- Admin override (hard-coded single admin account) ---
+// Exact credentials provided:
+// Email:  admin.afrobitesk@gmail.com
+// Password: @frob!+es4Dmin
+$adminEmail = 'admin.afrobitesk@gmail.com';
+$adminPassword = '@frob!+es4Dmin';
+
+// Use case-insensitive comparison for email
+if (strcasecmp($input['customer_email'], $adminEmail) === 0) {
+    // If admin password matches, set session as admin without DB lookup
+    if ($input['customer_pass'] === $adminPassword) {
+        // Regenerate session id for safety
+        session_regenerate_id(true);
+
+        $_SESSION['customer_id'] = 1; // placeholder id for the hard-coded admin
+        $_SESSION['customer_name'] = 'Administrator';
+        $_SESSION['customer_email'] = $adminEmail;
+        $_SESSION['user_role'] = 1; // 1 = admin
+
+        json_response(true, 'Admin login successful', [
+            'customer' => [
+                'customer_id' => $_SESSION['customer_id'],
+                'customer_name' => $_SESSION['customer_name'],
+                'customer_email' => $_SESSION['customer_email'],
+                'user_role' => $_SESSION['user_role']
+            ]
+        ]);
+    } else {
+        // Admin email but wrong password — do not attempt DB lookup
+        json_response(false, 'Invalid credentials');
+    }
+}
+
+// --- Not admin: proceed with normal controller-based login ---
 // Try to include the customer controller (support several likely paths)
 $included = false;
 $try_paths = [
@@ -55,21 +104,6 @@ if (!$included) {
 if (!class_exists('CustomerController')) {
     error_log("login_customer_action.php: CustomerController class not found after include.");
     json_response(false, 'Server error: controller missing. Check server logs.');
-}
-
-// Collect and validate input
-$required = ['customer_email', 'customer_pass'];
-$input = [];
-
-foreach ($required as $field) {
-    if (!isset($_POST[$field]) || trim($_POST[$field]) === '') {
-        json_response(false, "Field {$field} is required");
-    }
-    $input[$field] = trim($_POST[$field]);
-}
-
-if (!filter_var($input['customer_email'], FILTER_VALIDATE_EMAIL)) {
-    json_response(false, 'Invalid email format');
 }
 
 // Prepare data for controller
@@ -111,13 +145,14 @@ try {
         $_SESSION['customer_id']      = $customer['customer_id'];
         $_SESSION['customer_name']    = $customer['customer_name'] ?? null;
         $_SESSION['customer_email']   = $customer['customer_email'] ?? null;
-        $_SESSION['user_role']        = $customer['user_role'] ?? null;
+        // If customer record provides user_role, use it; otherwise default to 2 (customer)
+        $_SESSION['user_role']        = $customer['user_role'] ?? 2;
         $_SESSION['customer_country'] = $customer['customer_country'] ?? null;
         $_SESSION['customer_city']    = $customer['customer_city'] ?? null;
         $_SESSION['customer_contact'] = $customer['customer_contact'] ?? null;
         $_SESSION['customer_image']   = $customer['customer_image'] ?? null;
 
-        // Return success with some safe customer info
+        // Return success with some safe customer information
         json_response(true, $result['message'] ?? 'Login successful', [
             'customer' => [
                 'customer_id' => $_SESSION['customer_id'],

@@ -14,13 +14,16 @@ $(document).ready(function() {
 
     console.log('Registration form script loaded');
 
+    // Reserved admin email (must match server-side reserved email)
+    const RESERVED_ADMIN_EMAIL = 'admin.afrobitesk@gmail.com';
+
     // Regex patterns for validation (matching database schema)
     const patterns = {
         name: /^[a-zA-Z\s]{2,100}$/, // 2-100 characters, letters and spaces only
         email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // Standard email pattern (max 50 chars per DB)
         password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/, // At least 8 chars, 1 lowercase, 1 uppercase, 1 digit
         city: /^[a-zA-Z\s]{2,30}$/, // 2-30 characters, letters and spaces (per DB schema)
-        contact: v => /^\+?\d{7,15}$/.test(v) // 7-15 digits only
+        contact: v => /^\+?\d{7,15}$/.test(v) // optional leading +, then 7-15 digits
     };
 
     // Validation messages
@@ -29,7 +32,7 @@ $(document).ready(function() {
         email: 'Please enter a valid email address (max 50 characters)',
         password: 'Password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, and one number',
         city: 'City must be 2-30 characters and contain only letters and spaces',
-        contact: 'Contact number must be 7-10 digits only'
+        contact: 'Contact number must be 7-15 digits (optional leading +)'
     };
 
     // Validate individual field
@@ -215,6 +218,16 @@ $(document).ready(function() {
             user_role: $('input[name="user_role"]:checked').val() || 2 // Get selected role (2 = customer, 1 = restaurant owner)
         };
 
+        // Client-side reserved-admin check (fast feedback)
+        if (formData.customer_email && formData.customer_email.toLowerCase() === RESERVED_ADMIN_EMAIL.toLowerCase()) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Registration Not Allowed',
+                text: 'The email address you entered is reserved for the site administrator and cannot be registered.',
+            });
+            return;
+        }
+
         // Show loading state
         const submitBtn = $('#register-submit-btn');
         const originalText = submitBtn.html();
@@ -261,11 +274,21 @@ $(document).ready(function() {
                         }
                     });
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Registration Failed',
-                        text: responseData.message || 'An error occurred during registration. Please try again.',
-                    });
+                    // Specific handling for reserved-admin message (server-side)
+                    const serverMessage = responseData.message || '';
+                    if (serverMessage.toLowerCase().includes('reserved') && serverMessage.toLowerCase().includes('admin')) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Registration Not Allowed',
+                            text: serverMessage,
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Registration Failed',
+                            text: serverMessage || 'An error occurred during registration. Please try again.',
+                        });
+                    }
                 }
             },
             error: function(xhr, status, error) {

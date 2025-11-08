@@ -26,6 +26,29 @@ $(document).ready(function() {
         password: 'Password must be at least 8 characters'
     };
 
+    // helper: get query param (e.g., ?next=...)
+    function getQueryParam(name) {
+        name = name.replace(/[[]/, '\\[').replace(/[]]/, '\\]');
+        const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        const results = regex.exec(window.location.search);
+        return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+
+    // Determine post-login redirect target (priority: next param -> server-provided -> default index)
+    function getRedirectTarget(responseData) {
+        // 1) check URL query 'next'
+        const nextFromUrl = getQueryParam('next');
+        if (nextFromUrl) return nextFromUrl;
+
+        // 2) if server provided a next field in JSON, use it (some actions return this)
+        if (responseData && typeof responseData.next === 'string' && responseData.next.trim() !== '') {
+            return responseData.next;
+        }
+
+        // 3) fallback to index
+        return '../index.php';
+    }
+
     // Validate individual field
     function validateField(fieldName, value) {
         const pattern = patterns[fieldName];
@@ -153,16 +176,18 @@ $(document).ready(function() {
                 }
 
                 if (responseData.success) {
+                    // Decide redirect target
+                    const target = getRedirectTarget(responseData);
+
                     Swal.fire({
                         icon: 'success',
                         title: 'Success!',
                         text: responseData.message || 'Login successful! Redirecting...',
-                        confirmButtonText: 'OK',
-                        timer: 1500,
+                        timer: 1200,
                         showConfirmButton: false
                     }).then(() => {
-                        // Redirect to index.php (landing page)
-                        window.location.href = '../index.php';
+                        // If target is a relative URL without path, keep as-is; otherwise decode
+                        window.location.href = target;
                     });
                 } else {
                     Swal.fire({
@@ -202,4 +227,3 @@ $(document).ready(function() {
         });
     });
 });
-

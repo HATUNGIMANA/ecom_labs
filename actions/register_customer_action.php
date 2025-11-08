@@ -25,9 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // Try to include the Customer class. Support possible folder layouts.
 $included = false;
 $try_paths = [
-    __DIR__ . '/../classes/customer_class.php', // typical
-    __DIR__ . '/../../classes/customer_class.php', // if actions is deeper
-    __DIR__ . '/customer_class.php' // fallback
+    __DIR__ . '/../classes/customer_class.php',
+    __DIR__ . '/../../classes/customer_class.php',
+    __DIR__ . '/customer_class.php'
 ];
 
 foreach ($try_paths as $p) {
@@ -39,7 +39,6 @@ foreach ($try_paths as $p) {
 }
 
 if (!$included) {
-    // Log server-side for debugging and return a client-friendly message
     error_log("register_customer_action.php: cannot find classes/customer_class.php (paths tried): " . implode(", ", $try_paths));
     json_response(false, 'Server configuration error: user model not found. Check server logs.');
 }
@@ -49,6 +48,9 @@ if (!class_exists('customer_class')) {
     error_log("register_customer_action.php: customer_class not found after include.");
     json_response(false, 'Server error: user model missing. Check server logs.');
 }
+
+// --- Reserved admin email (do not allow registration) ---
+$reservedAdminEmail = 'admin.afrobitesk@gmail.com';
 
 // Collect + server-side validation
 $required = [
@@ -74,9 +76,14 @@ if (!filter_var($input['customer_email'], FILTER_VALIDATE_EMAIL)) {
     json_response(false, 'Invalid email format');
 }
 
-// Contact pattern - only digits, 7-15 digits
+// Block registration of reserved admin email (case-insensitive)
+if (strcasecmp($input['customer_email'], $reservedAdminEmail) === 0) {
+    json_response(false, 'This email address is reserved and cannot be registered.');
+}
+
+// Contact pattern - allow optional leading + then 7-15 digits
 if (!preg_match('/^\+?\d{7,15}$/', $input['customer_contact'])) {
-    json_response(false, 'Contact number must be 7-15 digits only');
+    json_response(false, 'Contact number must be 7-15 digits (optional leading +).');
 }
 
 // Password checks
@@ -92,21 +99,29 @@ if (mb_strlen($input['customer_name']) > 100) json_response(false, 'Name too lon
 if (mb_strlen($input['customer_email']) > 100) json_response(false, 'Email too long (max 100 chars)');
 if (mb_strlen($input['customer_country']) > 50) json_response(false, 'Country too long (max 50 chars)');
 if (mb_strlen($input['customer_city']) > 50) json_response(false, 'City too long (max 50 chars)');
-if (mb_strlen($input['customer_contact']) > 15) json_response(false, 'Contact number must be 7-15 digits only');
+if (mb_strlen($input['customer_contact']) > 15) json_response(false, 'Contact number must be 7-15 digits');
 
-// user_role: default to 2 (customer)
+// user_role: default to 2 (customer). Prevent client from assigning admin role via form.
 $user_role = 2;
 if (isset($_POST['user_role']) && in_array((int)$_POST['user_role'], [1,2], true)) {
-    $user_role = (int)$_POST['user_role'];
+    $requested_role = (int)$_POST['user_role'];
+    // Always force non-admin unless you have a secure flow to assign admins
+    $user_role = ($requested_role === 1) ? 2 : 2;
 }
 
-// Proceed to check email uniqueness and add user
 try {
     $customerModel = new customer_class();
 
-    // Check uniqueness
-    if ($customerModel->check_email_exists($input['customer_email'])) {
-        json_response(false, 'Email already in use');
+    // Check uniqueness (email)
+    if (method_exists($customerModel, 'check_email_exists')) {
+        if ($customerModel->check_email_exists($input['customer_email'])) {
+            json_response(false, 'Email already in use');
+        }
+    } else {
+        // If model lacks this helper, perform a defensive attempt (method missing)
+        error_log("register_customer_action.php: customer_class::check_email_exists() not found. Please implement this helper.");
+        // Proceed cautiously: you may want to reject to avoid duplicates, but here we fail with a server message
+        json_response(false, 'Server configuration error: email check not available. Check server logs.');
     }
 
     // Hash password
@@ -117,21 +132,26 @@ try {
 
     // Prepare payload
     $payload = [
-        'customer_name' => $input['customer_name'],
-        'customer_email' => $input['customer_email'],
-        'customer_pass' => $hashed,
+        'customer_name'    => $input['customer_name'],
+        'customer_email'   => $input['customer_email'],
+        'customer_pass'    => $hashed,
         'customer_country' => $input['customer_country'],
-        'customer_city' => $input['customer_city'],
+        'customer_city'    => $input['customer_city'],
         'customer_contact' => $input['customer_contact'],
-        'customer_image' => null,
-        'user_role' => $user_role
+        'customer_image'   => null,
+        'user_role'        => $user_role
     ];
 
-    // Add customer using the correct method name
+    // Add customer using model's add method
+    if (!method_exists($customerModel, 'add_customer')) {
+        error_log("register_customer_action.php: customer_class::add_customer() not found. Methods: " . implode(', ', get_class_methods($customerModel)));
+        json_response(false, 'Server configuration error: cannot add user. Check server logs.');
+    }
+
     $newId = $customerModel->add_customer($payload);
 
     if ($newId) {
-        // Success. Optionally return the new id (avoid returning sensitive data)
+        // Success. Return the new id (safe to return numeric id)
         json_response(true, 'Registration successful', ['customer_id' => (int)$newId]);
     } else {
         json_response(false, 'Registration failed (no id returned).');

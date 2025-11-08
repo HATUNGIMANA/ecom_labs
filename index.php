@@ -19,7 +19,7 @@ $userRole = $loggedIn ? ($_SESSION['user_role'] ?? 2) : 2;
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Taste of Africa — Home</title>
+  <title>Afro Bites Kitchen — Home</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -116,7 +116,7 @@ $userRole = $loggedIn ? ($_SESSION['user_role'] ?? 2) : 2;
   </div>
 
   <section class="hero">
-    <h1>Taste of Africa</h1>
+    <h1>Afro Bites Kitchen</h1>
     <p class="lead">Authentic, home-style African meals - crafted with real ingredients and bold flavors.</p>
 
     <?php if (!$loggedIn): ?>
@@ -160,7 +160,7 @@ $userRole = $loggedIn ? ($_SESSION['user_role'] ?? 2) : 2;
   </section>
 
   <footer>
-    © <?php echo date('Y'); ?> Taste of Africa — Bringing home the flavors of the continent.
+    © <?php echo date('Y'); ?> Afro Bites Kitchen — Bringing home the flavors of the continent.
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
