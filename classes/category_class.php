@@ -1,6 +1,25 @@
 <?php
 
-require_once '../settings/db_class.php';
+// TRY MULTIPLE PATHS FOR DB CLASS
+$db_paths = [
+    __DIR__ . '/../settings/db_class.php',
+    dirname(__DIR__) . '/settings/db_class.php',
+    __DIR__ . '/../../settings/db_class.php'
+];
+
+$included = false;
+foreach ($db_paths as $path) {
+    if (file_exists($path)) {
+        require_once $path;
+        $included = true;
+        break;
+    }
+}
+
+if (!$included) {
+    error_log("category_class: Cannot find db_class.php");
+    throw new Exception("Database class file not found");
+}
 
 /**
  * Category class that extends database connection
@@ -17,20 +36,27 @@ class category_class extends db_connection
     {
         // Connect to database
         if (!$this->db_connect()) {
+            error_log("category_class::add_category - Database connection failed");
             return false;
         }
 
-        // Prepare SQL query - Note: if customer_id column doesn't exist, you may need to add it to the database
-        // For now, we'll try with customer_id, but if it fails, we can modify to work without it
+        // Log the connection attempt
+        error_log("category_class::add_category - Database connected successfully");
+        error_log("category_class::add_category - Data: " . print_r($data, true));
+
+        // Prepare SQL query - Try with customer_id first
         $sql = "INSERT INTO categories (cat_name, customer_id) VALUES (?, ?)";
 
         // Prepare statement
         $stmt = $this->db->prepare($sql);
         if (!$stmt) {
+            error_log("category_class::add_category - Prepare failed with customer_id: " . $this->db->error);
+            
             // If the above fails, try without customer_id (fallback)
             $sql = "INSERT INTO categories (cat_name) VALUES (?)";
             $stmt = $this->db->prepare($sql);
             if (!$stmt) {
+                error_log("category_class::add_category - Prepare failed without customer_id: " . $this->db->error);
                 return false;
             }
             $cat_name = $data['cat_name'];
@@ -44,9 +70,11 @@ class category_class extends db_connection
         // Execute query
         if ($stmt->execute()) {
             $category_id = $this->db->insert_id;
+            error_log("category_class::add_category - Success! New ID: $category_id");
             $stmt->close();
             return $category_id;
         } else {
+            error_log("category_class::add_category - Execute failed: " . $stmt->error);
             $stmt->close();
             return false;
         }

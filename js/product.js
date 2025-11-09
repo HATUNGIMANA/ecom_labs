@@ -3,22 +3,16 @@ $(function() {
     if (typeof $ === 'undefined') return alert('jQuery required');
     if (typeof Swal === 'undefined') return alert('SweetAlert2 required');
 
-    // Build absolute path to actions directory
-    const pathParts = window.location.pathname.split('/').filter(p => p);
-    const adminIndex = pathParts.indexOf('admin');
+    // SIMPLER PATH DETECTION
+    const currentPath = window.location.pathname;
     let api;
-    
-    if (adminIndex >= 0) {
-        // Build absolute path: /project_root/actions/product_action.php
-        const basePath = '/' + pathParts.slice(0, adminIndex).join('/');
-        api = basePath + '/actions/product_action.php';
-    } else {
-        // Fallback to relative path
+    if (currentPath.includes('/admin/')) {
         api = '../actions/product_action.php';
+    } else {
+        api = 'actions/product_action.php';
     }
-    
+
     console.log('product.js: using path:', api);
-    console.log('Current location:', window.location.pathname);
 
     function onFail(xhr, st, err) {
         console.error('AJAX fail', st, err, xhr.status, xhr.responseText);

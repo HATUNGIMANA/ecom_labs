@@ -1,6 +1,25 @@
 <?php
 
-require_once '../classes/category_class.php';
+// TRY MULTIPLE PATHS FOR THE CLASS FILE
+$class_paths = [
+    __DIR__ . '/../classes/category_class.php',
+    dirname(__DIR__) . '/classes/category_class.php',
+    __DIR__ . '/../../classes/category_class.php'
+];
+
+$included = false;
+foreach ($class_paths as $path) {
+    if (file_exists($path)) {
+        require_once $path;
+        $included = true;
+        break;
+    }
+}
+
+if (!$included) {
+    error_log("CategoryController: Cannot find category_class.php");
+    throw new Exception("Category class file not found");
+}
 
 /**
  * Category Controller

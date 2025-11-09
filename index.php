@@ -292,3 +292,5 @@ if (empty($products)) {
   <script src="js/product_search.js"></script>
 </body>
 </html>
+
+

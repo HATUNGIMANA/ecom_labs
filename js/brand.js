@@ -3,22 +3,37 @@ $(function() {
     if (typeof $ === 'undefined') return alert('jQuery required');
     if (typeof Swal === 'undefined') return alert('SweetAlert2 required');
 
-    // Build absolute path to actions directory
-    const pathParts = window.location.pathname.split('/').filter(p => p);
-    const adminIndex = pathParts.indexOf('admin');
+    // MORE ROBUST PATH DETECTION (admin pages live under /admin/)
+    const currentPath = window.location.pathname;
     let api;
-    
-    if (adminIndex >= 0) {
-        // Build absolute path: /project_root/actions/brand_action.php
-        const basePath = '/' + pathParts.slice(0, adminIndex).join('/');
-        api = basePath + '/actions/brand_action.php';
-    } else {
-        // Fallback to relative path
+    if (currentPath.includes('/admin/')) {
+        // When inside admin pages, actions are one level up
         api = '../actions/brand_action.php';
+    } else {
+        api = 'actions/brand_action.php';
     }
-    
+
     console.log('brand.js: using path:', api);
     console.log('Current location:', window.location.pathname);
+    console.log('Testing API endpoint...');
+
+    // TEST THE CONNECTION FIRST
+    $.ajax({
+        url: api,
+        method: 'POST',
+        data: { action: 'fetch' },
+        dataType: 'json',
+        success: function(res) {
+            console.log('✓ Brand API connected successfully');
+            console.log('Response:', res);
+        },
+        error: function(xhr, status, error) {
+            console.error('✗ Brand API connection failed');
+            console.error('Status:', xhr.status);
+            console.error('Response:', xhr.responseText);
+            alert('Cannot connect to brand API. Check console for details.');
+        }
+    });
 
     function onFail(xhr, st, err) {
         console.error('AJAX fail', st, err, xhr.status, xhr.responseText);
