@@ -2,10 +2,20 @@
 // actions/login_customer_action.php
 header('Content-Type: application/json; charset=utf-8');
 
-// Start (or resume) session
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+// Destroy any existing session before starting a new one (security: prevent session fixation)
+if (session_status() === PHP_SESSION_ACTIVE) {
+    // Clear all session data
+    $_SESSION = array();
+    // Destroy the session cookie
+    if (isset($_COOKIE[session_name()])) {
+        setcookie(session_name(), '', time() - 3600, '/');
+    }
+    // Destroy the session
+    session_destroy();
 }
+
+// Start a fresh session
+session_start();
 
 // Helper to return JSON then exit
 function json_response(bool $success, string $message, array $extra = []) {
@@ -19,16 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(false, 'Invalid request method. Use POST.');
 }
 
-// If already logged in, return success (so frontend does not treat it as error)
-if (isset($_SESSION['customer_id']) && !empty($_SESSION['customer_id'])) {
-    $info = [
-        'customer_id' => $_SESSION['customer_id'],
-        'customer_name' => $_SESSION['customer_name'] ?? null,
-        'customer_email' => $_SESSION['customer_email'] ?? null,
-        'user_role' => $_SESSION['user_role'] ?? null
-    ];
-    json_response(true, 'Already logged in', ['customer' => $info]);
-}
+// Note: We don't check for existing session here because we just destroyed it above
+// This ensures a fresh login always creates a new session
 
 // Collect and validate input
 $required = ['customer_email', 'customer_pass'];
