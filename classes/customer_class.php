@@ -1,6 +1,19 @@
 <?php
 
-require_once '../settings/db_class.php';
+// robust DB include (try common locations)
+$db_paths = [
+    __DIR__ . '/../settings/db_class.php',
+    dirname(__DIR__) . '/settings/db_class.php',
+    __DIR__ . '/../../settings/db_class.php'
+];
+$included = false;
+foreach ($db_paths as $p) {
+    if (file_exists($p)) { require_once $p; $included = true; break; }
+}
+if (!$included) {
+    error_log('customer_class: Cannot find db_class.php');
+    throw new Exception('Database class file not found');
+}
 
 /**
  * Customer class that extends database connection

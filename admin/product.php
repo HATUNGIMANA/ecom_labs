@@ -1,22 +1,29 @@
 <?php
 // admin/product.php
 // Admin interface: view & add products (no image uploads)
+<?php
+// admin/product.php
+try {
+  require_once '../settings/core.php';
 
-// Auth checks
-if (session_status() === PHP_SESSION_NONE) session_start();
-
-$core_paths = [
-    __DIR__ . '/../settings/core.php',
-    __DIR__ . '/../../settings/core.php',
-    __DIR__ . '/settings/core.php'
-];
-$foundCore = false;
-foreach ($core_paths as $p) {
-    if (file_exists($p)) { require_once $p; $foundCore = true; break; }
-}
-if (!$foundCore) {
+  // Check if user is logged in
+  if (!is_logged_in()) {
     header('Location: ../login/login.php');
     exit;
+  }
+
+  // Check if user is admin
+  if (!is_admin()) {
+    header('Location: ../login/login.php');
+    exit;
+  }
+
+  $customer_id = get_user_id();
+} catch (Throwable $ex) {
+  error_log('admin/product.php exception: ' . $ex->getMessage());
+  http_response_code(500);
+  echo '<h1>Server error</h1><p>Unable to load product admin page. Check server logs.</p>';
+  exit;
 }
 if (!function_exists('is_logged_in') || !function_exists('is_admin') || !is_logged_in() || !is_admin()) {
     header('Location: ../login/login.php');

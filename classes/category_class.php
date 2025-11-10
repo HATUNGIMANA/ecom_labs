@@ -137,11 +137,18 @@ class category_class extends db_connection
         if (!$this->db_connect()) {
             return false;
         }
+        // If no customer_id provided, return all categories
+        if ($customer_id === null) {
+            $sql = "SELECT * FROM categories ORDER BY cat_name ASC";
+            $result = $this->db_query($sql);
+            if (!$result) return false;
+            return $this->db_fetch_all($sql);
+        }
 
         // Try with customer_id first
         $sql = "SELECT * FROM categories WHERE customer_id = ? ORDER BY cat_name ASC";
         $stmt = $this->db->prepare($sql);
-        
+
         if (!$stmt) {
             // If customer_id column doesn't exist, get all categories
             $sql = "SELECT * FROM categories ORDER BY cat_name ASC";

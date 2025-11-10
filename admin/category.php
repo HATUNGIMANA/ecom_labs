@@ -1,20 +1,27 @@
 <?php
 // admin/category.php
-require_once '../settings/core.php';
+try {
+    require_once '../settings/core.php';
 
-// Check if user is logged in
-if (!is_logged_in()) {
-    header('Location: ../login/login.php');
+    // Check if user is logged in
+    if (!is_logged_in()) {
+        header('Location: ../login/login.php');
+        exit;
+    }
+
+    // Check if user is admin
+    if (!is_admin()) {
+        header('Location: ../login/login.php');
+        exit;
+    }
+
+    $customer_id = get_user_id();
+} catch (Throwable $ex) {
+    error_log('admin/category.php exception: ' . $ex->getMessage());
+    http_response_code(500);
+    echo '<h1>Server error</h1><p>Unable to load category admin page. Check server logs.</p>';
     exit;
 }
-
-// Check if user is admin
-if (!is_admin()) {
-    header('Location: ../login/login.php');
-    exit;
-}
-
-$customer_id = get_user_id();
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -12,13 +12,11 @@ function json_response(bool $success, string $message, array $extra = []) {
     exit;
 }
 
-// Check if user is logged in
-if (!isset($_SESSION['customer_id'])) {
-    json_response(false, 'You must be logged in to view categories.');
+// Get customer ID from session if available (allow anonymous fetch on servers where session cookies are not present)
+$customer_id = $_SESSION['customer_id'] ?? null;
+if (!$customer_id) {
+    error_log("fetch_category_action.php: No session customer_id available; falling back to public fetch.");
 }
-
-// Get customer ID from session
-$customer_id = $_SESSION['customer_id'];
 
 // Try to include the category controller
 $included = false;

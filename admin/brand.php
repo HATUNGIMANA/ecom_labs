@@ -1,68 +1,74 @@
 <?php
 // admin/brand.php
 // Admin interface to manage brands (create / edit / delete / list)
+try {
+  if (session_status() === PHP_SESSION_NONE) session_start();
 
-if (session_status() === PHP_SESSION_NONE) session_start();
-
-// include core auth helpers (adjust path if your project stores it elsewhere)
-$core_paths = [
+  // include core auth helpers (adjust path if your project stores it elsewhere)
+  $core_paths = [
     __DIR__ . '/../settings/core.php',
     __DIR__ . '/../../settings/core.php',
     __DIR__ . '/settings/core.php'
-];
-$foundCore = false;
-foreach ($core_paths as $p) {
+  ];
+  $foundCore = false;
+  foreach ($core_paths as $p) {
     if (file_exists($p)) { require_once $p; $foundCore = true; break; }
-}
-if (!$foundCore) {
+  }
+  if (!$foundCore) {
     // fallback: cannot check auth
     header('Location: ../login/login.php');
     exit;
-}
+  }
 
-// auth check: must be logged in and admin
-if (!function_exists('is_logged_in') || !function_exists('is_admin') || !is_logged_in() || !is_admin()) {
+  // auth check: must be logged in and admin
+  if (!function_exists('is_logged_in') || !function_exists('is_admin') || !is_logged_in() || !is_admin()) {
     // redirect to login
     header('Location: ../login/login.php');
     exit;
-}
+  }
 
-// DB helper: attempt to open DB using several possible constant names
-function get_db_conn() {
+  // DB helper: attempt to open DB using several possible constant names
+  function get_db_conn() {
     // look for common defines
     $hosts = [
-        // modern alternative names
-        ['host' => defined('DB_HOST') ? DB_HOST : null, 'user' => defined('DB_USER') ? DB_USER : null, 'pass' => defined('DB_PASS') ? DB_PASS : null, 'db' => defined('DB_NAME') ? DB_NAME : null],
-        // older style
-        ['host' => defined('SERVER') ? SERVER : null, 'user' => defined('USERNAME') ? USERNAME : null, 'pass' => defined('PASSWD') ? PASSWD : null, 'db' => defined('DATABASE') ? DATABASE : null],
-        // fallback common XAMPP
-        ['host' => 'localhost', 'user' => 'root', 'pass' => '', 'db' => 'shoppn']
+      // modern alternative names
+      ['host' => defined('DB_HOST') ? DB_HOST : null, 'user' => defined('DB_USER') ? DB_USER : null, 'pass' => defined('DB_PASS') ? DB_PASS : null, 'db' => defined('DB_NAME') ? DB_NAME : null],
+      // older style
+      ['host' => defined('SERVER') ? SERVER : null, 'user' => defined('USERNAME') ? USERNAME : null, 'pass' => defined('PASSWD') ? PASSWD : null, 'db' => defined('DATABASE') ? DATABASE : null],
+      // fallback common XAMPP
+      ['host' => 'localhost', 'user' => 'root', 'pass' => '', 'db' => 'shoppn']
     ];
     foreach ($hosts as $c) {
-        if (empty($c['host']) || empty($c['user']) || empty($c['db'])) continue;
-        $mysqli = @new mysqli($c['host'], $c['user'], $c['pass'] ?? '', $c['db']);
-        if ($mysqli && !$mysqli->connect_errno) {
-            // set charset
-            $mysqli->set_charset('utf8mb4');
-            return $mysqli;
-        }
+      if (empty($c['host']) || empty($c['user']) || empty($c['db'])) continue;
+      $mysqli = @new mysqli($c['host'], $c['user'], $c['pass'] ?? '', $c['db']);
+      if ($mysqli && !$mysqli->connect_errno) {
+        // set charset
+        $mysqli->set_charset('utf8mb4');
+        return $mysqli;
+      }
     }
     return null;
-}
+  }
 
-// Load categories for the Add Brand form
-$db = get_db_conn();
-$categories = [];
-if ($db) {
+  // Load categories for the Add Brand form
+  $db = get_db_conn();
+  $categories = [];
+  if ($db) {
     $sql = "SELECT cat_id, cat_name FROM categories ORDER BY cat_name";
     if ($res = $db->query($sql)) {
-        while ($r = $res->fetch_assoc()) {
-            $categories[] = $r;
-        }
-        $res->free();
+      while ($r = $res->fetch_assoc()) {
+        $categories[] = $r;
+      }
+      $res->free();
     }
     // don't close -- might be reused by other includes, but okay to close
     $db->close();
+  }
+} catch (Throwable $ex) {
+  error_log('admin/brand.php exception: ' . $ex->getMessage());
+  http_response_code(500);
+  echo '<h1>Server error</h1><p>Unable to load brand admin page. Check server logs.</p>';
+  exit;
 }
 ?>
 <!doctype html>
