@@ -54,9 +54,11 @@ class CategoryController
                 'category_id' => $category_id
             ];
         } else {
+            $err = isset($category->last_error) && $category->last_error ? $category->last_error : 'Failed to add category. Please try again.';
+            error_log("CategoryController::add_category_ctr - " . $err);
             return [
                 'success' => false,
-                'message' => 'Failed to add category. Please try again.'
+                'message' => $err
             ];
         }
     }

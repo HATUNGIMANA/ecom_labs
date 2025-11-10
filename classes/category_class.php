@@ -27,6 +27,8 @@ if (!$included) {
  */
 class category_class extends db_connection
 {
+    // store last error message for callers
+    public $last_error = '';
     /**
      * Add a new category
      * @param array $data Category data including: cat_name, customer_id
@@ -36,6 +38,7 @@ class category_class extends db_connection
     {
         // Connect to database
         if (!$this->db_connect()) {
+            $this->last_error = 'Database connection failed';
             error_log("category_class::add_category - Database connection failed");
             return false;
         }
@@ -50,13 +53,15 @@ class category_class extends db_connection
         // Prepare statement
         $stmt = $this->db->prepare($sql);
         if (!$stmt) {
-            error_log("category_class::add_category - Prepare failed with customer_id: " . $this->db->error);
+            $this->last_error = 'Prepare failed with customer_id: ' . $this->db->error;
+            error_log("category_class::add_category - " . $this->last_error);
             
             // If the above fails, try without customer_id (fallback)
             $sql = "INSERT INTO categories (cat_name) VALUES (?)";
             $stmt = $this->db->prepare($sql);
             if (!$stmt) {
-                error_log("category_class::add_category - Prepare failed without customer_id: " . $this->db->error);
+                $this->last_error = 'Prepare failed without customer_id: ' . $this->db->error;
+                error_log("category_class::add_category - " . $this->last_error);
                 return false;
             }
             $cat_name = $data['cat_name'];
@@ -74,7 +79,8 @@ class category_class extends db_connection
             $stmt->close();
             return $category_id;
         } else {
-            error_log("category_class::add_category - Execute failed: " . $stmt->error);
+            $this->last_error = 'Execute failed: ' . $stmt->error;
+            error_log("category_class::add_category - " . $this->last_error);
             $stmt->close();
             return false;
         }
