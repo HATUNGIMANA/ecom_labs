@@ -30,9 +30,11 @@ class ProductController
             return ['success' => false, 'message' => 'Missing required product fields'];
         }
         if (!method_exists($this->model, 'add')) return ['success' => false, 'message' => 'Model method add() not implemented'];
-        $newId = $this->model->add($payload);
-        if ($newId) return ['success' => true, 'message' => 'Product added successfully', 'product_id' => (int)$newId];
-        return ['success' => false, 'message' => 'Failed to add product'];
+    $newId = $this->model->add($payload);
+    if ($newId) return ['success' => true, 'message' => 'Product added successfully', 'product_id' => (int)$newId];
+    $err = isset($this->model->last_error) && $this->model->last_error ? $this->model->last_error : 'Failed to add product';
+    error_log('ProductController::add_product_ctr - ' . $err);
+    return ['success' => false, 'message' => $err];
     }
 
     public function update_product_ctr(array $payload)

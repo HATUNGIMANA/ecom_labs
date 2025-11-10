@@ -50,7 +50,9 @@ class BrandController
         if ($newId) {
             return ['success' => true, 'message' => 'Brand added successfully', 'brand_id' => (int)$newId];
         }
-        return ['success' => false, 'message' => 'Failed to add brand'];
+        $err = isset($this->model->last_error) && $this->model->last_error ? $this->model->last_error : 'Failed to add brand';
+        error_log('BrandController::add_brand_ctr - ' . $err);
+        return ['success' => false, 'message' => $err];
     }
 
     // payload: ['brand_id','brand_name','updated_by']

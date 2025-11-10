@@ -1,6 +1,19 @@
 <?php
 
-require_once '../settings/db_class.php';
+// robust DB include (try common locations)
+$db_paths = [
+    __DIR__ . '/../settings/db_class.php',
+    dirname(__DIR__) . '/settings/db_class.php',
+    __DIR__ . '/../../settings/db_class.php'
+];
+$included = false;
+foreach ($db_paths as $p) {
+    if (file_exists($p)) { require_once $p; $included = true; break; }
+}
+if (!$included) {
+    error_log('brand_class: Cannot find db_class.php');
+    throw new Exception('Database class file not found');
+}
 
 /**
  * Brand class that extends database connection
@@ -8,6 +21,7 @@ require_once '../settings/db_class.php';
  */
 class brand_class extends db_connection
 {
+    public $last_error = '';
     /**
      * Add a new brand
      * @param array $data Brand data including: brand_name, cat_id, created_by (optional)
@@ -16,6 +30,7 @@ class brand_class extends db_connection
     public function add($data)
     {
         if (!$this->db_connect()) {
+            $this->last_error = 'Database connection failed';
             return false;
         }
 
@@ -27,20 +42,21 @@ class brand_class extends db_connection
         }
 
         // Check if brands table has cat_id column
-        // First try with cat_id (if column exists)
-        $sql = "INSERT INTO brands (brand_name, cat_id) VALUES (?, ?)";
-        $stmt = $this->db->prepare($sql);
-        
-        if (!$stmt) {
-            // If cat_id column doesn't exist, try without it
+        // Check whether cat_id exists to avoid prepare/execute ambiguity
+        $hasCatId = false;
+        $cols = $this->db->query("SHOW COLUMNS FROM brands LIKE 'cat_id'");
+        if ($cols && $cols->num_rows > 0) $hasCatId = true;
+
+        if ($hasCatId) {
+            $sql = "INSERT INTO brands (brand_name, cat_id) VALUES (?, ?)";
+            $stmt = $this->db->prepare($sql);
+            if (!$stmt) { $this->last_error = 'Prepare failed with cat_id: ' . $this->db->error; error_log($this->last_error); return false; }
+            $stmt->bind_param("si", $brand_name, $cat_id);
+        } else {
             $sql = "INSERT INTO brands (brand_name) VALUES (?)";
             $stmt = $this->db->prepare($sql);
-            if (!$stmt) {
-                return false;
-            }
+            if (!$stmt) { $this->last_error = 'Prepare failed without cat_id: ' . $this->db->error; error_log($this->last_error); return false; }
             $stmt->bind_param("s", $brand_name);
-        } else {
-            $stmt->bind_param("si", $brand_name, $cat_id);
         }
 
         if ($stmt->execute()) {
@@ -48,6 +64,8 @@ class brand_class extends db_connection
             $stmt->close();
             return $brand_id;
         } else {
+            $this->last_error = 'Execute failed: ' . $stmt->error;
+            error_log('brand_class::add - ' . $this->last_error);
             $stmt->close();
             return false;
         }

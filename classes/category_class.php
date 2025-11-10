@@ -47,16 +47,25 @@ class category_class extends db_connection
         error_log("category_class::add_category - Database connected successfully");
         error_log("category_class::add_category - Data: " . print_r($data, true));
 
-        // Prepare SQL query - Try with customer_id first
-        $sql = "INSERT INTO categories (cat_name, customer_id) VALUES (?, ?)";
+        // Determine whether table has customer_id column first to avoid prepare/execute ambiguity
+        $hasCustomerId = false;
+        $cols = $this->db->query("SHOW COLUMNS FROM categories LIKE 'customer_id'");
+        if ($cols && $cols->num_rows > 0) {
+            $hasCustomerId = true;
+        }
 
-        // Prepare statement
-        $stmt = $this->db->prepare($sql);
-        if (!$stmt) {
-            $this->last_error = 'Prepare failed with customer_id: ' . $this->db->error;
-            error_log("category_class::add_category - " . $this->last_error);
-            
-            // If the above fails, try without customer_id (fallback)
+        if ($hasCustomerId) {
+            $sql = "INSERT INTO categories (cat_name, customer_id) VALUES (?, ?)";
+            $stmt = $this->db->prepare($sql);
+            if (!$stmt) {
+                $this->last_error = 'Prepare failed with customer_id: ' . $this->db->error;
+                error_log("category_class::add_category - " . $this->last_error);
+                return false;
+            }
+            $cat_name = $data['cat_name'];
+            $customer_id = isset($data['customer_id']) ? (int)$data['customer_id'] : null;
+            $stmt->bind_param("si", $cat_name, $customer_id);
+        } else {
             $sql = "INSERT INTO categories (cat_name) VALUES (?)";
             $stmt = $this->db->prepare($sql);
             if (!$stmt) {
@@ -66,10 +75,6 @@ class category_class extends db_connection
             }
             $cat_name = $data['cat_name'];
             $stmt->bind_param("s", $cat_name);
-        } else {
-            $cat_name = $data['cat_name'];
-            $customer_id = isset($data['customer_id']) ? (int)$data['customer_id'] : null;
-            $stmt->bind_param("si", $cat_name, $customer_id);
         }
 
         // Execute query

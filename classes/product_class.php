@@ -107,6 +107,7 @@ if (!class_exists('db_connection')) {
  */
 class product_class extends db_connection
 {
+    public $last_error = '';
     /**
      * Add a new product
      * @param array $data
@@ -115,6 +116,7 @@ class product_class extends db_connection
     public function add($data)
     {
         if (!$this->db_connect()) {
+            $this->last_error = 'Database connection failed';
             return false;
         }
 
@@ -135,6 +137,7 @@ class product_class extends db_connection
 
         $stmt = $this->db->prepare($sql);
         if (!$stmt) {
+            $this->last_error = 'Prepare failed: ' . $this->db->error;
             error_log("product_class::add prepare failed: " . $this->db->error);
             return false;
         }
@@ -147,6 +150,7 @@ class product_class extends db_connection
             $stmt->close();
             return (int)$newId;
         } else {
+            $this->last_error = 'Execute failed: ' . $stmt->error;
             error_log("product_class::add execute failed: " . $stmt->error);
             $stmt->close();
             return false;
