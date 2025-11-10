@@ -1,0 +1,10 @@
+[10-Nov-2025 19:54:31 Europe/Berlin] Trying path: C:\xampp\htdocs\Ecommerce\EcomLabs\actions/../controllers/category_controller.php
+[10-Nov-2025 19:54:31 Europe/Berlin] Successfully included: C:\xampp\htdocs\Ecommerce\EcomLabs\actions/../controllers/category_controller.php
+[10-Nov-2025 19:54:31 Europe/Berlin] category_class::add_category - Database connected successfully
+[10-Nov-2025 19:54:31 Europe/Berlin] category_class::add_category - Data: Array
+(
+    [cat_name] => Lunch III
+    [customer_id] => 1
+)
+
+[10-Nov-2025 19:54:31 Europe/Berlin] category_class::add_category - Success! New ID: 9
