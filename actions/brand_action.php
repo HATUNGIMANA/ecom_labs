@@ -47,12 +47,8 @@ if (!$foundCore) {
     json_response(false, 'Server error: core settings not found.');
 }
 
-// Only logged-in admins may perform brand operations
-if (!function_exists('is_logged_in') || !function_exists('is_admin')) {
-    json_response(false, 'Server misconfiguration: auth helpers missing.');
-}
-if (!is_logged_in()) json_response(false, 'Not authenticated. Please login.');
-if (!is_admin()) json_response(false, 'Unauthorized. Admin access required.');
+// Note: allow the 'fetch' action to be called publicly (used to populate brand lists
+// on admin product pages). Only enforce auth for mutating actions below.
 
 // include controller
 $ctrl_paths = [
@@ -75,12 +71,26 @@ if (!$foundCtrl || !class_exists('BrandController')) {
 try {
     $controller = new BrandController();
 } catch (Exception $e) {
+    error_log('brand_action initialization error: ' . $e->getMessage());
+    // also write to a file in actions/ for easier host diagnostics
+    @file_put_contents(__DIR__ . '/brand_action_error.log', '['.date('c').'] init exception: '. $e->getMessage() ."\n". $e->getTraceAsString() ."\n\n", FILE_APPEND | LOCK_EX);
     json_response(false, 'Failed to initialize controller: ' . $e->getMessage());
 }
 
 // Switch on action
 try {
-    switch (strtolower($action)) {
+    $actionLower = strtolower($action);
+
+    // Enforce auth for mutating actions only
+    if (in_array($actionLower, ['add','update','delete'])) {
+        if (!function_exists('is_logged_in') || !function_exists('is_admin')) {
+            json_response(false, 'Server misconfiguration: auth helpers missing.');
+        }
+        if (!is_logged_in()) json_response(false, 'Not authenticated. Please login.');
+        if (!is_admin()) json_response(false, 'Unauthorized. Admin access required.');
+    }
+
+    switch ($actionLower) {
         case 'fetch':
             // fetch all brands created by the current admin (or all)
             $userId = $_SESSION['customer_id'] ?? null;
@@ -127,6 +137,10 @@ try {
             json_response(false, 'Unknown action: ' . htmlspecialchars($action));
     }
 } catch (Exception $ex) {
+    // Log full trace for host debugging and return a helpful message to the admin
     error_log("brand_action.php Exception: " . $ex->getMessage() . "\n" . $ex->getTraceAsString());
-    json_response(false, 'Server error. Check logs.');
+    @file_put_contents(__DIR__ . '/brand_action_error.log', '['.date('c').'] exception: '. $ex->getMessage() ."\n". $ex->getTraceAsString() ."\n\n", FILE_APPEND | LOCK_EX);
+    // Return the exception message in JSON so the frontend can show it (admin only)
+    $msg = 'Server error. ' . $ex->getMessage();
+    json_response(false, $msg);
 }
