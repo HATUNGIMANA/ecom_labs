@@ -83,25 +83,45 @@ class brand_class extends db_connection
         if (!$this->db_connect()) {
             return false;
         }
+        // Detect whether the brands table actually has a cat_id column
+        $hasCatId = false;
+        $cols = $this->db->query("SHOW COLUMNS FROM brands LIKE 'cat_id'");
+        if ($cols && $cols->num_rows > 0) $hasCatId = true;
 
-        // Try with cat_id first
-        $sql = "SELECT brand_id FROM brands WHERE brand_name = ? AND cat_id = ?";
-        $stmt = $this->db->prepare($sql);
-        
-        if (!$stmt) {
-            // If cat_id doesn't exist, check by name only
+        if ($hasCatId) {
+            $sql = "SELECT brand_id FROM brands WHERE brand_name = ? AND cat_id = ?";
+            $stmt = $this->db->prepare($sql);
+            if (!$stmt) {
+                $this->last_error = 'Prepare failed in exists_brand_for_user with cat_id: ' . $this->db->error;
+                error_log($this->last_error);
+                return false;
+            }
+            $stmt->bind_param("si", $brand_name, $cat_id);
+        } else {
+            // Table lacks cat_id — fall back to name-only check
             $sql = "SELECT brand_id FROM brands WHERE brand_name = ?";
             $stmt = $this->db->prepare($sql);
             if (!$stmt) {
+                $this->last_error = 'Prepare failed in exists_brand_for_user (no cat_id): ' . $this->db->error;
+                error_log($this->last_error);
                 return false;
             }
             $stmt->bind_param("s", $brand_name);
-        } else {
-            $stmt->bind_param("si", $brand_name, $cat_id);
         }
 
-        $stmt->execute();
+        if (!$stmt->execute()) {
+            $this->last_error = 'Execute failed in exists_brand_for_user: ' . $stmt->error;
+            error_log($this->last_error);
+            $stmt->close();
+            return false;
+        }
         $result = $stmt->get_result();
+        if ($result === false) {
+            $this->last_error = 'Get result failed in exists_brand_for_user: ' . $this->db->error;
+            error_log($this->last_error);
+            $stmt->close();
+            return false;
+        }
         $exists = $result->num_rows > 0;
         $stmt->close();
 
