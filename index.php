@@ -284,7 +284,11 @@ if (empty($products)) {
                   <p class="text-muted small"><?php echo mb_strlen($desc) > 120 ? htmlspecialchars(mb_substr($desc,0,120)) . '...' : $desc; ?></p>
                   <div class="d-flex justify-content-between align-items-center">
                     <span class="text-muted small">From GHS<?php echo $price; ?></span>
-                    <a href="#" class="btn btn-sm order-btn" onclick="event.preventDefault(); return false;" aria-disabled="true" role="button">Order</a>
+                    <?php if (!$loggedIn): ?>
+                      <a href="<?php echo $orderUrl; ?>" class="btn btn-sm order-btn">Order</a>
+                    <?php else: ?>
+                      <a href="#" class="btn btn-sm order-btn" onclick="event.preventDefault(); return false;" aria-disabled="true" role="button">Order</a>
+                    <?php endif; ?>
                   </div>
                 </div>
               </div>
