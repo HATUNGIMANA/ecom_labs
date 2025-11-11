@@ -2,7 +2,17 @@
 // admin/product.php
 // Admin interface: view & add products (no image uploads)
 try {
-  require_once '../settings/core.php';
+  // Try multiple locations for core.php (some hosts use different document roots)
+  $core_paths = [
+    __DIR__ . '/../settings/core.php',
+    __DIR__ . '/../../settings/core.php',
+    __DIR__ . '/settings/core.php'
+  ];
+  $found = false;
+  foreach ($core_paths as $p) {
+    if (file_exists($p)) { require_once $p; $found = true; break; }
+  }
+  if (!$found) throw new Exception('Core file not found');
 
   // Check if user is logged in and an admin
   if (!function_exists('is_logged_in') || !function_exists('is_admin') || !is_logged_in() || !is_admin()) {
@@ -23,31 +33,9 @@ try {
   exit;
 }
 
-// DB helper to load categories (so the product form can select categories)
-function get_db_conn() {
-    $hosts = [
-        ['host' => defined('DB_HOST') ? DB_HOST : null, 'user' => defined('DB_USER') ? DB_USER : null, 'pass' => defined('DB_PASS') ? DB_PASS : null, 'db' => defined('DB_NAME') ? DB_NAME : null],
-        ['host' => defined('SERVER') ? SERVER : null, 'user' => defined('USERNAME') ? USERNAME : null, 'pass' => defined('PASSWD') ? PASSWD : null, 'db' => defined('DATABASE') ? DATABASE : null],
-        ['host' => 'localhost', 'user' => 'root', 'pass' => '', 'db' => 'shoppn']
-    ];
-    foreach ($hosts as $c) {
-        if (empty($c['host']) || empty($c['user']) || empty($c['db'])) continue;
-        $m = @new mysqli($c['host'], $c['user'], $c['pass'] ?? '', $c['db']);
-        if ($m && !$m->connect_errno) { $m->set_charset('utf8mb4'); return $m; }
-    }
-    return null;
-}
-
-$db = get_db_conn();
+// Avoid doing a server-side DB query here (some hosts have different DB credentials).
+// Populate categories client-side via AJAX (actions/fetch_category_action.php).
 $categories = [];
-if ($db) {
-    $sql = "SELECT cat_id, cat_name FROM categories ORDER BY cat_name";
-    if ($res = $db->query($sql)) {
-        while ($r = $res->fetch_assoc()) $categories[] = $r;
-        $res->free();
-    }
-    $db->close();
-}
 ?>
 <!doctype html>
 <html lang="en">
@@ -147,6 +135,27 @@ if ($db) {
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- product + brand JS -->
+  <!-- Populate category select via AJAX to avoid server-side DB dependency -->
+  <script>
+    (function(){
+      if (typeof window.jQuery === 'undefined') return;
+      $(function(){
+        $.post('../actions/fetch_category_action.php', { action: 'fetch' }, function(res){
+          if (!res || !res.success || !Array.isArray(res.data) || !res.data.length) {
+            $('#product_cat').after('<div class="small-muted text-danger mt-2">Could not load categories. Please check server logs or create categories first.</div>');
+            console.warn('fetch_category_action returned empty or error:', res);
+            return;
+          }
+          const sel = $('#product_cat');
+          sel.find('option:not([value=""])').remove();
+          res.data.forEach(function(c){
+            sel.append('<option value="'+ (c.cat_id || c.id || '') +'">'+ (c.cat_name || c.name || '') +'</option>');
+          });
+        }, 'json').fail(function(xhr){ console.warn('Could not load categories for product form.', xhr); $('#product_cat').after('<div class="small-muted text-danger mt-2">Failed to load categories (network error). See console for details.</div>'); });
+      });
+    })();
+  </script>
+
   <script src="../js/brand.js?v=<?php echo time(); ?>"></script>
   <script src="../js/product.js?v=<?php echo time(); ?>"></script>
 

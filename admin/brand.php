@@ -138,14 +138,19 @@ try {
       if (typeof window.jQuery === 'undefined') return; // jQuery not loaded for some reason
       $(function(){
         $.post('../actions/fetch_category_action.php', { action: 'fetch' }, function(res){
-          if (!res || !res.success || !Array.isArray(res.data)) return; 
+          if (!res || !res.success || !Array.isArray(res.data) || !res.data.length) {
+            $('#brand_cat').after('<div class="small-muted text-danger mt-2">Could not load categories. Please check server logs or create categories first.</div>');
+            console.warn('fetch_category_action returned empty or error:', res);
+            return;
+          }
           const sel = $('#brand_cat');
           sel.find('option:not([value=""])').remove();
           res.data.forEach(function(c){
             sel.append('<option value="'+ (c.cat_id || c.id || '') +'">'+ (c.cat_name || c.name || '') +'</option>');
           });
-        }, 'json').fail(function(){
-          console.warn('Could not load categories for brand form.');
+        }, 'json').fail(function(xhr){
+          $('#brand_cat').after('<div class="small-muted text-danger mt-2">Failed to load categories (network error). See console for details.</div>');
+          console.warn('Could not load categories for brand form.', xhr);
         });
       });
     })();

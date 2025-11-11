@@ -61,9 +61,10 @@ try {
     $result = $controller->get_categories_ctr($customer_id);
 
     if ($result['success']) {
-        json_response(true, $result['message'], ['categories' => $result['categories']]);
+        // Return categories in both 'categories' (legacy) and 'data' (standard) keys
+        json_response(true, $result['message'], ['categories' => $result['categories'], 'data' => $result['categories']]);
     } else {
-        json_response(false, $result['message'], ['categories' => []]);
+        json_response(false, $result['message'], ['categories' => [], 'data' => []]);
     }
 } catch (Exception $ex) {
     error_log("fetch_category_action.php Exception: " . $ex->getMessage());
