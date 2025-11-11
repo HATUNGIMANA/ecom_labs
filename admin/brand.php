@@ -42,7 +42,7 @@ try {
   error_log('admin/brand.php exception: ' . $ex->getMessage());
   http_response_code(500);
   echo '<h1>Server error</h1><p>Unable to load brand admin page. Check server logs.</p>';
-  echo '<p class="small-muted">(Diagnostic log written to: ' . htmlspecialchars(basename($logPath)) . ' — check server filesystem or ask the host to review PHP error logs.)</p>';
+  echo '<p class="small-muted">(Diagnostic log written to: ' . htmlspecialchars(basename($logPath)) . ' - check server filesystem or ask the host to review PHP error logs.)</p>';
   exit;
 }
 ?>
@@ -51,7 +51,7 @@ try {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin — Brands</title>
+  <title>Admin - Brands</title>
 
   <link href="../css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
@@ -80,9 +80,9 @@ try {
         <h5>Add Brand</h5>
         <p class="small-muted">Create a new brand and assign it to a category. Brand+Category combinations must be unique.</p>
 
-        <?php if (empty($categories)): ?>
-          <div class="alert alert-warning">No categories found. Please create categories first.</div>
-        <?php endif; ?>
+        <!-- Categories are loaded client-side via AJAX; the server-side $categories
+             variable is intentionally empty to avoid DB bootstrap errors on some hosts.
+             Any error or empty state will be shown client-side under the select. -->
 
         <form id="brand-add-form" class="mt-3">
           <div class="mb-3">

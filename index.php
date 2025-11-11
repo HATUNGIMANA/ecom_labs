@@ -37,7 +37,7 @@ function project_db_connect() {
 $featuredMeals = [
     ['id' => 1, 'title' => 'Jollof Rice with Grilled Chicken', 'desc' => 'Spiced tomato rice served with succulent grilled chicken.', 'icon' => 'fa-drumstick-bite'],
     ['id' => 2, 'title' => 'Pilau with Beef', 'desc' => 'Fragrant spiced rice cooked with tender beef pieces.', 'icon' => 'fa-bowl-rice'],
-    ['id' => 3, 'title' => 'Grilled Fish & Plantain', 'desc' => 'Whole grilled fish with fried plantain — smoky and savory.', 'icon' => 'fa-fish'],
+  ['id' => 3, 'title' => 'Grilled Fish & Plantain', 'desc' => 'Whole grilled fish with fried plantain - smoky and savory.', 'icon' => 'fa-fish'],
     ['id' => 4, 'title' => 'Beef Burger & Fries', 'desc' => 'Classic burger stacked with cheese and served with crispy fries.', 'icon' => 'fa-hamburger'],
 ];
 
@@ -104,7 +104,7 @@ if (empty($products)) {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Afro Bites Kitchen — Home</title>
+  <title>Afro Bites Kitchen - Home</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -124,16 +124,15 @@ if (empty($products)) {
       min-height:100vh;
     }
 
-    /* Top-right menu */
+    /* Centered top menu (placed in the middle of the page) */
     .menu-tray {
-      position: fixed;
-      top: 16px;
-      right: 16px;
+      position: relative; /* not fixed so it flows with content */
+      margin: 12px auto 0 auto;
       background: rgba(255,255,255,0.96);
-      border-radius: 10px;
+      border-radius: 8px;
       padding: 8px 12px;
       box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-      display:flex; gap:8px; align-items:center;
+      display:flex; gap:8px; align-items:center; justify-content:center; width:fit-content;
       z-index:1000;
     }
     .menu-tray a.btn-outline-light { color: #b77a7a !important; border-color: #b77a7a !important; }
@@ -147,22 +146,23 @@ if (empty($products)) {
     .hero h1 { font-weight:800; margin-bottom:6px; }
     .hero p.lead { color: rgba(255,255,255,0.94); max-width:820px; margin:0 auto 18px; }
 
-    /* Layout: left sticky search, right content */
+    /* Layout: stacked search above featured products and centered */
     .layout {
       padding: 12px;
       margin-top: 12px;
       padding-top: 0;
+      display:flex;
+      justify-content:center;
     }
-    .left-card {
-      position: sticky;
-      top: 80px;
-    }
-    .search-card { background: rgba(255,255,255,0.96); border-radius:10px; padding:12px; box-shadow:0 8px 30px rgba(0,0,0,0.12); }
+    .layout .row { width:100%; max-width:1100px; margin:0 auto; }
+    .left-card { margin:0 auto 18px; max-width:700px; }
+  .search-card { background: rgba(255,255,255,0.96); border-radius:6px; padding:16px; box-shadow:0 8px 30px rgba(0,0,0,0.12); max-width:900px; margin:0 auto; }
 
     /* product cards */
-    .meal-card { border-radius:12px; background: var(--card-bg); box-shadow:0 8px 28px rgba(0,0,0,0.12); transition: .12s; }
-    .meal-card:hover { transform: translateY(-6px); }
-    .meal-icon { height:120px; display:flex; justify-content:center; align-items:center; font-size:44px; color:var(--accent-dark); background: rgba(255,255,255,0.10); border-top-left-radius:12px; border-top-right-radius:12px; }
+  /* Rectangular product cards centered */
+  .meal-card { border-radius:4px; background: var(--card-bg); box-shadow:0 8px 28px rgba(0,0,0,0.12); transition: .12s; overflow:hidden; }
+  .meal-card:hover { transform: translateY(-6px); }
+  .meal-icon { height:80px; display:flex; justify-content:center; align-items:center; font-size:36px; color:var(--accent-dark); background: rgba(255,255,255,0.06); border-radius:0; }
     .order-btn { background:#D19C97; border:none; color:white; border-radius:6px; }
     .order-btn:hover { background:#b77a7a; }
 
@@ -171,6 +171,19 @@ if (empty($products)) {
     @media (max-width:767px) {
       .left-card { position: relative; top: auto; margin-bottom:12px; }
       .meal-icon { height:100px; font-size:36px; }
+    }
+
+    /* At wider screens ensure content is stacked vertically and centered */
+    @media (min-width:768px) {
+      .layout .row { display:flex; flex-direction:column; align-items:center; }
+      section.col-md-8, aside.col-md-4 { width:100%; max-width:920px; }
+      .row.g-4 { justify-content:center; }
+      /* Keep the box size but lay items out in two fixed columns centered */
+      :root { --featured-box-w: 420px; }
+      .products-grid { display:block; }
+      .product-item { width:100%; }
+      .products-grid.grid-md { display:grid; grid-template-columns: repeat(2, var(--featured-box-w)); gap:1.5rem; justify-content:center; }
+      .products-grid.grid-md .product-item { width: var(--featured-box-w); }
     }
   </style>
 </head>
@@ -241,9 +254,9 @@ if (empty($products)) {
                 </select>
               </div>
 
-              <div class="d-grid">
-                <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fa fa-search"></i> Search</button>
-              </div>
+                <div class="d-grid">
+                  <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fa fa-search"></i> Search</button>
+                </div>
             </form>
           </div>
         </div>
@@ -251,8 +264,8 @@ if (empty($products)) {
 
       <!-- RIGHT: product grid -->
       <section class="col-12 col-md-8">
-        <h3 class="text-white mb-3">Featured Meals & Dishes</h3>
-        <div class="row g-4">
+  <h3 class="text-white mb-3 text-center">Featured Meals & Dishes</h3>
+        <div class="products-grid grid-md">
           <?php foreach ($products as $p):
             $pid = (int)($p['product_id'] ?? 0);
             $title = htmlspecialchars($p['product_title'] ?? 'Untitled');
@@ -262,7 +275,7 @@ if (empty($products)) {
             // order link: if not logged in, send to login with next param
             $orderUrl = $loggedIn ? "order.php?product_id={$pid}" : "login/login.php?next=" . urlencode("order.php?product_id={$pid}");
           ?>
-            <div class="col-12 col-sm-6">
+            <div class="product-item">
               <div class="meal-card h-100">
                 <div class="meal-icon"><i class="fa fa-utensils"></i></div>
 
@@ -270,8 +283,8 @@ if (empty($products)) {
                   <h5><?php echo $title; ?></h5>
                   <p class="text-muted small"><?php echo mb_strlen($desc) > 120 ? htmlspecialchars(mb_substr($desc,0,120)) . '...' : $desc; ?></p>
                   <div class="d-flex justify-content-between align-items-center">
-                    <span class="text-muted small">From $<?php echo $price; ?></span>
-                    <a href="<?php echo $orderUrl; ?>" class="btn btn-sm order-btn">Order</a>
+                    <span class="text-muted small">From GHS<?php echo $price; ?></span>
+                    <a href="#" class="btn btn-sm order-btn" onclick="event.preventDefault(); return false;" aria-disabled="true" role="button">Order</a>
                   </div>
                 </div>
               </div>
@@ -283,13 +296,33 @@ if (empty($products)) {
   </main>
 
   <footer>
-    © <?php echo date('Y'); ?> Afro Bites Kitchen — Bringing home the flavors of the continent.
+    © <?php echo date('Y'); ?> Afro Bites Kitchen - Bringing home the flavors of the continent.
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <!-- optional product search JS if you have it -->
   <script src="js/product_search.js"></script>
+  <script>
+    // Prevent name-only searches unless category AND brand are selected
+    $(function(){
+      $('#search-form').on('submit', function(e){
+        try {
+          var q = $('#search-query').val() ? $('#search-query').val().trim() : '';
+          var cat = $('#filter-category').val();
+          var brand = $('#filter-brand').val();
+          if (q !== '' && (!cat || cat === '') && (!brand || brand === '')) {
+            e.preventDefault();
+            alert('Please select both a Category and a Brand before searching by name.');
+            $('#filter-category').focus();
+            return false;
+          }
+        } catch (err) {
+          // fail silently and allow submit if JS errors occur
+        }
+      });
+    });
+  </script>
 </body>
 </html>
 

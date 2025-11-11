@@ -98,7 +98,7 @@ class brand_class extends db_connection
             }
             $stmt->bind_param("si", $brand_name, $cat_id);
         } else {
-            // Table lacks cat_id — fall back to name-only check
+            // Table lacks cat_id - fall back to name-only check
             $sql = "SELECT brand_id FROM brands WHERE brand_name = ?";
             $stmt = $this->db->prepare($sql);
             if (!$stmt) {

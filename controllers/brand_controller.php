@@ -42,7 +42,7 @@ class BrandController
             if ($exists) return ['success' => false, 'message' => 'Brand already exists for this category'];
         }
 
-        // call model add — expected to return inserted id or false
+    // call model add - expected to return inserted id or false
         if (!method_exists($this->model, 'add')) {
             return ['success' => false, 'message' => 'Model method add() not implemented'];
         }

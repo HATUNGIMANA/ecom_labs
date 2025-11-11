@@ -118,7 +118,7 @@ if (!$product || empty($product)) {
                 <h1 class="mb-3"><?php echo htmlspecialchars($product['product_title']); ?></h1>
                 
                 <div class="mb-3">
-                    <span class="price-display">$<?php echo number_format($product['product_price'], 2); ?></span>
+                    <span class="price-display">GHS<?php echo number_format($product['product_price'], 2); ?></span>
                 </div>
 
                 <div class="mb-4">

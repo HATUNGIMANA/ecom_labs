@@ -172,7 +172,7 @@ if ($db->db_connect()) {
                                         | <i class="fas fa-store me-1"></i><?php echo htmlspecialchars($product['brand_name']); ?>
                                     <?php endif; ?>
                                 </p>
-                                <p class="price-tag mb-3">$<?php echo number_format($product['product_price'], 2); ?></p>
+                                <p class="price-tag mb-3">GHS<?php echo number_format($product['product_price'], 2); ?></p>
                                 <div class="d-flex gap-2">
                                     <a href="single_product.php?id=<?php echo $product['product_id']; ?>" class="btn btn-outline-primary btn-sm flex-grow-1">
                                         <i class="fas fa-eye me-1"></i>View Details

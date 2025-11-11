@@ -75,7 +75,7 @@ if (strcasecmp($input['customer_email'], $adminEmail) === 0) {
             ]
         ]);
     } else {
-        // Admin email but wrong password — do not attempt DB lookup
+        // Admin email but wrong password - do not attempt DB lookup
         json_response(false, 'Invalid credentials');
     }
 }

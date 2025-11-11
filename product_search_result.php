@@ -155,11 +155,11 @@ if ($db->db_connect()) {
             <p class="text-muted">Found <strong><?php echo $totalProducts; ?></strong> result(s)</p>
 
             <!-- Refine Search Form -->
-            <form method="GET" action="product_search_result.php" class="row g-3 mt-3">
+            <form id="refine-form" method="GET" action="product_search_result.php" class="row g-3 mt-3">
                 <input type="hidden" name="q" value="<?php echo htmlspecialchars($query); ?>">
                 <div class="col-md-4">
                     <label class="form-label">Refine by Category</label>
-                    <select name="cat_id" class="form-select">
+                    <select id="refine-cat" name="cat_id" class="form-select">
                         <option value="">All Categories</option>
                         <?php foreach ($categories as $cat): ?>
                             <option value="<?php echo $cat['cat_id']; ?>" <?php echo ($cat_id == $cat['cat_id']) ? 'selected' : ''; ?>>
@@ -170,7 +170,7 @@ if ($db->db_connect()) {
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Refine by Brand/Cuisine</label>
-                    <select name="brand_id" class="form-select">
+                    <select id="refine-brand" name="brand_id" class="form-select">
                         <option value="">All Brands</option>
                         <?php foreach ($brands as $brand): ?>
                             <option value="<?php echo $brand['brand_id']; ?>" <?php echo ($brand_id == $brand['brand_id']) ? 'selected' : ''; ?>>
@@ -210,7 +210,7 @@ if ($db->db_connect()) {
                                         | <i class="fas fa-store me-1"></i><?php echo htmlspecialchars($product['brand_name']); ?>
                                     <?php endif; ?>
                                 </p>
-                                <p class="price-tag mb-3">$<?php echo number_format($product['product_price'], 2); ?></p>
+                                <p class="price-tag mb-3">GHS<?php echo number_format($product['product_price'], 2); ?></p>
                                 <div class="d-flex gap-2">
                                     <a href="single_product.php?id=<?php echo $product['product_id']; ?>" class="btn btn-outline-primary btn-sm flex-grow-1">
                                         <i class="fas fa-eye me-1"></i>View Details
@@ -258,6 +258,30 @@ if ($db->db_connect()) {
             alert('Add to cart functionality will be implemented soon! Product ID: ' + productId);
             // Placeholder for cart functionality
         }
+
+        // Prevent name-only searches unless both category and brand are selected
+        document.addEventListener('DOMContentLoaded', function(){
+            var form = document.getElementById('refine-form');
+            if (!form) return;
+            form.addEventListener('submit', function(e){
+                try {
+                    var qInput = document.querySelector('input[name="q"]');
+                    var q = qInput ? qInput.value.trim() : '';
+                    var cat = (document.getElementById('refine-cat') || {}).value || '';
+                    var brand = (document.getElementById('refine-brand') || {}).value || '';
+                    if (q !== '' && (!cat || cat === '') && (!brand || brand === '')) {
+                        e.preventDefault();
+                        alert('Please select both a Category and a Brand before searching by name.');
+                        var el = document.getElementById('refine-cat');
+                        if (el) el.focus();
+                        return false;
+                    }
+                } catch (err) {
+                    // allow submission on JS error
+                }
+            });
+        });
+    </script>
     </script>
 </body>
 </html>
