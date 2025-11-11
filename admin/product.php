@@ -1,33 +1,26 @@
 <?php
 // admin/product.php
 // Admin interface: view & add products (no image uploads)
-<?php
-// admin/product.php
 try {
   require_once '../settings/core.php';
 
-  // Check if user is logged in
-  if (!is_logged_in()) {
-    header('Location: ../login/login.php');
-    exit;
-  }
-
-  // Check if user is admin
-  if (!is_admin()) {
+  // Check if user is logged in and an admin
+  if (!function_exists('is_logged_in') || !function_exists('is_admin') || !is_logged_in() || !is_admin()) {
     header('Location: ../login/login.php');
     exit;
   }
 
   $customer_id = get_user_id();
 } catch (Throwable $ex) {
+  // write a small diagnostic to a local file for the host to inspect
+  $logPath = __DIR__ . '/product_error.log';
+  $msg = '[' . date('c') . '] admin/product.php exception: ' . $ex->getMessage() . "\n" . $ex->getTraceAsString() . "\n\n";
+  @file_put_contents($logPath, $msg, FILE_APPEND | LOCK_EX);
   error_log('admin/product.php exception: ' . $ex->getMessage());
   http_response_code(500);
   echo '<h1>Server error</h1><p>Unable to load product admin page. Check server logs.</p>';
+  echo '<p class="small-muted">(Diagnostic log: ' . htmlspecialchars(basename($logPath)) . ')</p>';
   exit;
-}
-if (!function_exists('is_logged_in') || !function_exists('is_admin') || !is_logged_in() || !is_admin()) {
-    header('Location: ../login/login.php');
-    exit;
 }
 
 // DB helper to load categories (so the product form can select categories)

@@ -27,47 +27,22 @@ try {
     exit;
   }
 
-  // DB helper: attempt to open DB using several possible constant names
-  function get_db_conn() {
-    // look for common defines
-    $hosts = [
-      // modern alternative names
-      ['host' => defined('DB_HOST') ? DB_HOST : null, 'user' => defined('DB_USER') ? DB_USER : null, 'pass' => defined('DB_PASS') ? DB_PASS : null, 'db' => defined('DB_NAME') ? DB_NAME : null],
-      // older style
-      ['host' => defined('SERVER') ? SERVER : null, 'user' => defined('USERNAME') ? USERNAME : null, 'pass' => defined('PASSWD') ? PASSWD : null, 'db' => defined('DATABASE') ? DATABASE : null],
-      // fallback common XAMPP
-      ['host' => 'localhost', 'user' => 'root', 'pass' => '', 'db' => 'shoppn']
-    ];
-    foreach ($hosts as $c) {
-      if (empty($c['host']) || empty($c['user']) || empty($c['db'])) continue;
-      $mysqli = @new mysqli($c['host'], $c['user'], $c['pass'] ?? '', $c['db']);
-      if ($mysqli && !$mysqli->connect_errno) {
-        // set charset
-        $mysqli->set_charset('utf8mb4');
-        return $mysqli;
-      }
-    }
-    return null;
-  }
-
-  // Load categories for the Add Brand form
-  $db = get_db_conn();
+  // For robustness on different hosts we avoid doing a server-side DB query here.
+  // Instead, the category select will be populated client-side via AJAX against
+  // `actions/fetch_category_action.php`. This prevents DB connection failures in
+  // the admin page bootstrap and keeps the UI responsive even if the server-side
+  // configuration differs.
   $categories = [];
-  if ($db) {
-    $sql = "SELECT cat_id, cat_name FROM categories ORDER BY cat_name";
-    if ($res = $db->query($sql)) {
-      while ($r = $res->fetch_assoc()) {
-        $categories[] = $r;
-      }
-      $res->free();
-    }
-    // don't close -- might be reused by other includes, but okay to close
-    $db->close();
-  }
 } catch (Throwable $ex) {
+  // Write a short trace to a local log file to help diagnose hosting-specific problems
+  $logPath = __DIR__ . '/brand_error.log';
+  $msg = '[' . date('c') . '] admin/brand.php exception: ' . $ex->getMessage() . "\n" . $ex->getTraceAsString() . "\n\n";
+  // best-effort write; suppress any warnings if open_basedir prevents writing
+  @file_put_contents($logPath, $msg, FILE_APPEND | LOCK_EX);
   error_log('admin/brand.php exception: ' . $ex->getMessage());
   http_response_code(500);
   echo '<h1>Server error</h1><p>Unable to load brand admin page. Check server logs.</p>';
+  echo '<p class="small-muted">(Diagnostic log written to: ' . htmlspecialchars(basename($logPath)) . ' — check server filesystem or ask the host to review PHP error logs.)</p>';
   exit;
 }
 ?>
@@ -156,6 +131,25 @@ try {
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Populate category select via AJAX to avoid server-side DB dependency -->
+  <script>
+    (function(){
+      if (typeof window.jQuery === 'undefined') return; // jQuery not loaded for some reason
+      $(function(){
+        $.post('../actions/fetch_category_action.php', { action: 'fetch' }, function(res){
+          if (!res || !res.success || !Array.isArray(res.data)) return; 
+          const sel = $('#brand_cat');
+          sel.find('option:not([value=""])').remove();
+          res.data.forEach(function(c){
+            sel.append('<option value="'+ (c.cat_id || c.id || '') +'">'+ (c.cat_name || c.name || '') +'</option>');
+          });
+        }, 'json').fail(function(){
+          console.warn('Could not load categories for brand form.');
+        });
+      });
+    })();
+  </script>
 
   <!-- Your brand JS (AJAX -> actions/brand_action.php) -->
   <script src="../js/brand.js?v=<?php echo time(); ?>"></script>
