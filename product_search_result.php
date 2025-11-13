@@ -181,7 +181,7 @@ if ($db->db_connect()) {
                         <div class="card product-card h-100">
                             <div class="product-image">
                                 <?php if (!empty($product['product_image'])): ?>
-                                    <img src="product/<?php echo htmlspecialchars($product['product_image']); ?>" alt="<?php echo htmlspecialchars($product['product_title']); ?>">
+                                    <img src="<?php echo htmlspecialchars($product['product_image']); ?>" alt="<?php echo htmlspecialchars($product['product_title']); ?>">
                                 <?php else: ?>
                                     <i class="fas fa-utensils fa-3x"></i>
                                 <?php endif; ?>

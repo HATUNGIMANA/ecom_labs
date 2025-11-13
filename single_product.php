@@ -85,7 +85,7 @@ if (!$product || empty($product)) {
             <div class="col-md-6 mb-4">
                 <div class="product-image-container">
                     <?php if (!empty($product['product_image'])): ?>
-                        <img src="product/<?php echo htmlspecialchars($product['product_image']); ?>" 
+                        <img src="<?php echo htmlspecialchars($product['product_image']); ?>" 
                              alt="<?php echo htmlspecialchars($product['product_title']); ?>" 
                              class="product-image">
                     <?php else: ?>

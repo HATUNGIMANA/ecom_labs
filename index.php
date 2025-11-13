@@ -261,7 +261,13 @@ if (empty($products)) {
           ?>
             <div class="product-item">
               <div class="meal-card h-100">
-                <div class="meal-icon"><i class="fa fa-utensils"></i></div>
+                <?php if (!empty($img)): ?>
+                  <div style="height:160px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#fff;">
+                    <img src="<?php echo htmlspecialchars($img); ?>" alt="<?php echo $title; ?>" style="max-width:100%; max-height:160px; object-fit:cover;">
+                  </div>
+                <?php else: ?>
+                  <div class="meal-icon"><i class="fa fa-utensils"></i></div>
+                <?php endif; ?>
 
                 <div class="p-3">
                   <h5><?php echo $title; ?></h5>
