@@ -94,8 +94,47 @@ $(function() {
         };
         if (!payload.product_cat||!payload.product_brand||!payload.product_title||!payload.product_price) return Swal.fire('Validation','Please fill required fields','warning');
         if (isNaN(Number(payload.product_price))) return Swal.fire('Validation','Price must be numeric','warning');
-        $.post(api, payload, function(res) { if (res.success) { Swal.fire('Saved',res.message,'success'); $('#product-form')[0].reset(); fetchProducts(); } else Swal.fire('Error',res.message||'Failed','error'); }, 'json').fail(onFail);
+        $.post(api, payload, function(res) {
+            if (res.success) {
+                // If an image file was selected, upload it now
+                const fileInput = document.getElementById('product_image');
+                const file = fileInput && fileInput.files && fileInput.files[0];
+                if (file && res.product_id) {
+                    uploadProductImage(res.product_id, file);
+                }
+                Swal.fire('Saved',res.message,'success');
+                $('#product-form')[0].reset();
+                fetchProducts();
+            } else Swal.fire('Error',res.message||'Failed','error');
+        }, 'json').fail(onFail);
     });
+
+    function uploadProductImage(productId, file) {
+        const uploadApi = api.replace('product_action.php', 'upload_product_image_action.php');
+        const fd = new FormData();
+        fd.append('product_id', productId);
+        fd.append('product_image', file);
+        // Use AJAX to submit multipart/form-data
+        $.ajax({
+            url: uploadApi,
+            method: 'POST',
+            data: fd,
+            processData: false,
+            contentType: false,
+            dataType: 'json'
+        }).done(function(resp){
+            if (resp && resp.success) {
+                console.log('Image uploaded:', resp.path);
+                fetchProducts();
+                Swal.fire({ icon: 'success', title: 'Image uploaded' , text: 'Product image uploaded successfully.' });
+            } else {
+                console.warn('Image upload failed', resp);
+                Swal.fire({ icon: 'warning', title: 'Image upload', text: resp && resp.message ? resp.message : 'Failed to upload image' });
+            }
+        }).fail(function(xhr){
+            onFail(xhr, 'error', 'upload');
+        });
+    }
 
     $(document).on('click', '.edit-product', function() {
         const id = $(this).data('id');

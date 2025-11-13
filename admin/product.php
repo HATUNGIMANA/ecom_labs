@@ -110,6 +110,12 @@ $categories = [];
             <input id="product_keywords" name="product_keywords" class="form-control" maxlength="150" />
           </div>
 
+          <div class="mb-2">
+            <label for="product_image" class="form-label">Product Image (optional)</label>
+            <input id="product_image" name="product_image" type="file" accept="image/*" class="form-control" />
+            <div class="small-muted">Uploads will be stored in the server's <code>uploads/</code> directory.</div>
+          </div>
+
           <div>
             <button type="submit" class="btn btn-primary">Save Product</button>
           </div>
