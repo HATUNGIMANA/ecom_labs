@@ -39,8 +39,25 @@ $user_id = $_SESSION['customer_id'] ?? 0;
 if ($user_id <= 0) $user_id = 0; // allow zero for system/admin
 
 // Build uploads base directory (must be the existing uploads/ folder)
-$uploads_base = realpath(__DIR__ . '/../uploads');
-if ($uploads_base === false) json_response(false, 'Upload directory not available on server');
+// Try several likely locations: project/uploads, parent/uploads, document root/uploads
+$candidates = [
+    __DIR__ . '/../uploads',        // project_root/uploads
+    __DIR__ . '/../../uploads',     // parent/uploads
+    __DIR__ . '/../../../uploads',  // grandparent/uploads
+];
+// also try document root
+if (!empty($_SERVER['DOCUMENT_ROOT'])) $candidates[] = rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'uploads';
+
+$uploads_base = false;
+$tried = [];
+foreach ($candidates as $cand) {
+    $tried[] = $cand;
+    $rp = realpath($cand);
+    if ($rp !== false && is_dir($rp)) { $uploads_base = $rp; break; }
+}
+if ($uploads_base === false) {
+    json_response(false, 'Upload directory not available on server. Paths tried: ' . implode(', ', $tried));
+}
 
 // Build target directory: uploads/u{user_id}/p{product_id}
 $target_dir = $uploads_base . DIRECTORY_SEPARATOR . 'u' . (int)$user_id . DIRECTORY_SEPARATOR . 'p' . (int)$product_id;
