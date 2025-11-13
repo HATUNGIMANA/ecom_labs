@@ -123,25 +123,9 @@ if ($db->db_connect()) {
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
     </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="index.php">
-                <i class="fas fa-utensils me-2"></i>Afro Bites Kitchen
-            </a>
-            <div class="ms-auto">
-                <a href="all_product.php" class="btn btn-outline-secondary btn-sm me-2">All Dishes</a>
-                <a href="index.php" class="btn btn-outline-secondary btn-sm me-2">Home</a>
-                <?php if (is_logged_in()): ?>
-                    <a href="login/logout.php" class="btn btn-outline-danger btn-sm">Logout</a>
-                <?php else: ?>
-                    <a href="login/register.php" class="btn btn-outline-primary btn-sm me-2">Register</a>
-                    <a href="login/login.php" class="btn btn-outline-primary btn-sm">Login</a>
-                <?php endif; ?>
-            </div>
-        </div>
-    </nav>
+ </head>
+ <body>
+    <?php include __DIR__ . '/partials/navbar.php'; ?>
 
     <div class="container mb-5">
         <!-- Search Header -->
@@ -253,12 +237,9 @@ if ($db->db_connect()) {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function addToCart(productId) {
-            alert('Add to cart functionality will be implemented soon! Product ID: ' + productId);
-            // Placeholder for cart functionality
-        }
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/checkout.js"></script>
         // Prevent name-only searches unless both category and brand are selected
         document.addEventListener('DOMContentLoaded', function(){
             var form = document.getElementById('refine-form');
@@ -281,7 +262,6 @@ if ($db->db_connect()) {
                 }
             });
         });
-    </script>
     </script>
 </body>
 </html>

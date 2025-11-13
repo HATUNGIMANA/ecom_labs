@@ -2,19 +2,17 @@
 // actions/login_customer_action.php
 header('Content-Type: application/json; charset=utf-8');
 
-// Destroy any existing session before starting a new one (security: prevent session fixation)
-if (session_status() === PHP_SESSION_ACTIVE) {
-    // Clear all session data
-    $_SESSION = array();
-    // Destroy the session cookie
-    if (isset($_COOKIE[session_name()])) {
-        setcookie(session_name(), '', time() - 3600, '/');
-    }
-    // Destroy the session
-    session_destroy();
-}
+// Ensure session started and capture current session id (to allow merging guest cart)
+if (session_status() === PHP_SESSION_NONE) session_start();
+$prev_session_key = session_id();
 
-// Start a fresh session
+// Clear and restart session to avoid fixation but keep previous session id for cart merge
+$_SESSION = array();
+if (isset($_COOKIE[session_name()])) {
+    setcookie(session_name(), '', time() - 3600, '/');
+}
+session_destroy();
+// Start a fresh session (new session id)
 session_start();
 
 // Helper to return JSON then exit
@@ -153,6 +151,46 @@ try {
         $_SESSION['customer_city']    = $customer['customer_city'] ?? null;
         $_SESSION['customer_contact'] = $customer['customer_contact'] ?? null;
         $_SESSION['customer_image']   = $customer['customer_image'] ?? null;
+
+        // If there was a pre-login session with a guest cart, merge it into the user's cart
+        try {
+            if (!empty($prev_session_key) && $prev_session_key !== session_id()) {
+                $cart_included = false;
+                $cart_try_paths = [
+                    __DIR__ . '/../controllers/cart_controller.php',
+                    __DIR__ . '/../../controllers/cart_controller.php',
+                    __DIR__ . '/controller/cart_controller.php',
+                    __DIR__ . '/cart_controller.php'
+                ];
+                foreach ($cart_try_paths as $p) {
+                    if (file_exists($p)) { require_once $p; $cart_included = true; break; }
+                }
+
+                if ($cart_included && class_exists('CartController')) {
+                    $cartCtrl = new CartController();
+                    if (method_exists($cartCtrl, 'get_user_cart_ctr')) {
+                        $guestItems = $cartCtrl->get_user_cart_ctr(null, $prev_session_key);
+                        if (is_array($guestItems) && count($guestItems) > 0) {
+                            foreach ($guestItems as $gi) {
+                                $pid = $gi['product_id'] ?? null;
+                                $q = $gi['quantity'] ?? 1;
+                                if ($pid) {
+                                    // add to user's cart (controller handles incrementing duplicates)
+                                    $cartCtrl->add_to_cart_ctr($_SESSION['customer_id'], session_id(), $pid, $q);
+                                }
+                            }
+                        }
+                        // remove the guest cart entries now that they have been merged
+                        if (method_exists($cartCtrl, 'empty_cart_ctr')) {
+                            $cartCtrl->empty_cart_ctr(null, $prev_session_key);
+                        }
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            error_log('login_customer_action.php: cart merge exception: ' . $e->getMessage());
+            // Non-fatal — continue login even if merge failed
+        }
 
         // Return success with some safe customer information
         json_response(true, $result['message'] ?? 'Login successful', [

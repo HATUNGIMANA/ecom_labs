@@ -1,0 +1,65 @@
+PHP Error [2]: Attempt to read property "connect_errno" on bool in C:\xampp\htdocs\Ecommerce\EcomLabs\classes\cart_class.php on line 14
+Exception in get_cart_action: Call to a member function query() on bool
+#0 C:\xampp\htdocs\Ecommerce\EcomLabs\controllers\cart_controller.php(24): cart_class->get_cart_items(1, 'c90eru9afi7740q...')
+#1 C:\xampp\htdocs\Ecommerce\EcomLabs\actions\get_cart_action.php(28): CartController->get_user_cart_ctr(1, 'c90eru9afi7740q...')
+#2 {main}
+PHP Error [2]: Attempt to read property "connect_errno" on bool in C:\xampp\htdocs\Ecommerce\EcomLabs\classes\cart_class.php on line 14
+Exception in add_to_cart_action: Call to a member function prepare() on bool
+#0 C:\xampp\htdocs\Ecommerce\EcomLabs\controllers\cart_controller.php(9): cart_class->add_to_cart(1, 'c90eru9afi7740q...', 4, 1)
+#1 C:\xampp\htdocs\Ecommerce\EcomLabs\actions\add_to_cart_action.php(33): CartController->add_to_cart_ctr(1, 'c90eru9afi7740q...', 4, 1)
+#2 {main}
+PHP Error [2]: Attempt to read property "connect_errno" on bool in C:\xampp\htdocs\Ecommerce\EcomLabs\classes\cart_class.php on line 14
+Exception in get_cart_action: Call to a member function query() on bool
+#0 C:\xampp\htdocs\Ecommerce\EcomLabs\controllers\cart_controller.php(24): cart_class->get_cart_items(1, 'c90eru9afi7740q...')
+#1 C:\xampp\htdocs\Ecommerce\EcomLabs\actions\get_cart_action.php(28): CartController->get_user_cart_ctr(1, 'c90eru9afi7740q...')
+#2 {main}
+PHP Error [2]: Attempt to read property "connect_errno" on bool in C:\xampp\htdocs\Ecommerce\EcomLabs\classes\cart_class.php on line 14
+Exception in get_cart_action: Call to a member function query() on bool
+#0 C:\xampp\htdocs\Ecommerce\EcomLabs\controllers\cart_controller.php(24): cart_class->get_cart_items(1, 'c90eru9afi7740q...')
+#1 C:\xampp\htdocs\Ecommerce\EcomLabs\actions\get_cart_action.php(28): CartController->get_user_cart_ctr(1, 'c90eru9afi7740q...')
+#2 {main}
+PHP Error [2]: Attempt to read property "connect_errno" on bool in C:\xampp\htdocs\Ecommerce\EcomLabs\classes\cart_class.php on line 14
+Exception in get_cart_action: Call to a member function query() on bool
+#0 C:\xampp\htdocs\Ecommerce\EcomLabs\controllers\cart_controller.php(24): cart_class->get_cart_items(1, 'c90eru9afi7740q...')
+#1 C:\xampp\htdocs\Ecommerce\EcomLabs\actions\get_cart_action.php(28): CartController->get_user_cart_ctr(1, 'c90eru9afi7740q...')
+#2 {main}
+PHP Error [2]: Attempt to read property "connect_errno" on bool in C:\xampp\htdocs\Ecommerce\EcomLabs\classes\cart_class.php on line 14
+Exception in add_to_cart_action: Call to a member function prepare() on bool
+#0 C:\xampp\htdocs\Ecommerce\EcomLabs\controllers\cart_controller.php(9): cart_class->add_to_cart(1, 'c90eru9afi7740q...', 2, 1)
+#1 C:\xampp\htdocs\Ecommerce\EcomLabs\actions\add_to_cart_action.php(33): CartController->add_to_cart_ctr(1, 'c90eru9afi7740q...', 2, 1)
+#2 {main}
+PHP Error [2]: Attempt to read property "connect_errno" on bool in C:\xampp\htdocs\Ecommerce\EcomLabs\classes\cart_class.php on line 14
+Exception in add_to_cart_action: Call to a member function prepare() on bool
+#0 C:\xampp\htdocs\Ecommerce\EcomLabs\controllers\cart_controller.php(9): cart_class->add_to_cart(1, 'c90eru9afi7740q...', 4, 1)
+#1 C:\xampp\htdocs\Ecommerce\EcomLabs\actions\add_to_cart_action.php(33): CartController->add_to_cart_ctr(1, 'c90eru9afi7740q...', 4, 1)
+#2 {main}
+PHP Error [2]: Attempt to read property "connect_errno" on bool in C:\xampp\htdocs\Ecommerce\EcomLabs\classes\cart_class.php on line 14
+Exception in add_to_cart_action: Call to a member function prepare() on bool
+#0 C:\xampp\htdocs\Ecommerce\EcomLabs\controllers\cart_controller.php(9): cart_class->add_to_cart(1, 'c90eru9afi7740q...', 3, 1)
+#1 C:\xampp\htdocs\Ecommerce\EcomLabs\actions\add_to_cart_action.php(33): CartController->add_to_cart_ctr(1, 'c90eru9afi7740q...', 3, 1)
+#2 {main}
+PHP Error [2]: Attempt to read property "connect_errno" on bool in C:\xampp\htdocs\Ecommerce\EcomLabs\classes\cart_class.php on line 14
+Exception in get_cart_action: Call to a member function query() on bool
+#0 C:\xampp\htdocs\Ecommerce\EcomLabs\controllers\cart_controller.php(24): cart_class->get_cart_items(1, 'c90eru9afi7740q...')
+#1 C:\xampp\htdocs\Ecommerce\EcomLabs\actions\get_cart_action.php(28): CartController->get_user_cart_ctr(1, 'c90eru9afi7740q...')
+#2 {main}
+PHP Error [2]: Attempt to read property "connect_errno" on bool in C:\xampp\htdocs\Ecommerce\EcomLabs\classes\cart_class.php on line 14
+Exception in get_cart_action: Call to a member function real_escape_string() on bool
+#0 C:\xampp\htdocs\Ecommerce\EcomLabs\controllers\cart_controller.php(24): cart_class->get_cart_items(NULL, '4cti0t6o7108mb8...')
+#1 C:\xampp\htdocs\Ecommerce\EcomLabs\actions\get_cart_action.php(28): CartController->get_user_cart_ctr(NULL, '4cti0t6o7108mb8...')
+#2 {main}
+PHP Error [2]: Attempt to read property "connect_errno" on bool in C:\xampp\htdocs\Ecommerce\EcomLabs\classes\cart_class.php on line 14
+Exception in add_to_cart_action: Call to a member function prepare() on bool
+#0 C:\xampp\htdocs\Ecommerce\EcomLabs\controllers\cart_controller.php(9): cart_class->add_to_cart(NULL, '4cti0t6o7108mb8...', 4, 1)
+#1 C:\xampp\htdocs\Ecommerce\EcomLabs\actions\add_to_cart_action.php(33): CartController->add_to_cart_ctr(NULL, '4cti0t6o7108mb8...', 4, 1)
+#2 {main}
+PHP Error [2]: Attempt to read property "connect_errno" on bool in C:\xampp\htdocs\Ecommerce\EcomLabs\classes\cart_class.php on line 14
+Exception in get_cart_action: Call to a member function query() on bool
+#0 C:\xampp\htdocs\Ecommerce\EcomLabs\controllers\cart_controller.php(24): cart_class->get_cart_items(3, '3mqpe7ae7nui5ug...')
+#1 C:\xampp\htdocs\Ecommerce\EcomLabs\actions\get_cart_action.php(28): CartController->get_user_cart_ctr(3, '3mqpe7ae7nui5ug...')
+#2 {main}
+PHP Error [2]: Attempt to read property "connect_errno" on bool in C:\xampp\htdocs\Ecommerce\EcomLabs\classes\cart_class.php on line 14
+Exception in add_to_cart_action: Call to a member function prepare() on bool
+#0 C:\xampp\htdocs\Ecommerce\EcomLabs\controllers\cart_controller.php(9): cart_class->add_to_cart(3, '3mqpe7ae7nui5ug...', 4, 1)
+#1 C:\xampp\htdocs\Ecommerce\EcomLabs\actions\add_to_cart_action.php(33): CartController->add_to_cart_ctr(3, '3mqpe7ae7nui5ug...', 4, 1)
+#2 {main}

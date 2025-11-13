@@ -189,27 +189,11 @@ if (empty($products)) {
 </head>
 <body>
 
-  <div class="menu-tray">
-    <span class="me-2">Menu:</span>
-    <a href="all_product.php" class="btn btn-sm btn-outline-light">All Dishes</a>
-
-    <?php if ($loggedIn): ?>
-      <span style="color:var(--accent); font-weight:700;">Welcome, <?php echo htmlspecialchars($customerName); ?>!</span>
-      <?php if ($userRole == 1): ?>
-        <a href="admin/category.php" class="btn btn-sm btn-outline-primary">Category</a>
-        <a href="admin/brand.php" class="btn btn-sm btn-outline-primary">Brand</a>
-        <a href="admin/product.php" class="btn btn-sm btn-outline-primary">Add Product</a>
-      <?php endif; ?>
-      <a href="login/logout.php" class="btn btn-sm btn-outline-danger">Logout</a>
-    <?php else: ?>
-      <a href="login/register.php" class="btn btn-sm btn-outline-light">Register</a>
-      <a href="login/login.php" class="btn btn-sm btn-outline-light">Login</a>
-    <?php endif; ?>
-  </div>
+  <?php include __DIR__ . '/partials/navbar.php'; ?>
 
   <section class="hero">
     <h1>Afro Bites Kitchen</h1>
-    <p class="lead">Authentic, home-style African meals - crafted with real ingredients and bold flavors.</p>
+    <p class="lead">Craving that taste of home? You're in the right place. Every meal here is made with love, bringing you the warmth of African flavors and the comfort of family recipes. Each dish tells a story, each bite feels like a hug.</p>
     <?php if (!$loggedIn): ?>
       <div class="mt-3">
         <a href="login/register.php" class="btn btn-outline-light me-2">Create an account</a>
@@ -284,11 +268,7 @@ if (empty($products)) {
                   <p class="text-muted small"><?php echo mb_strlen($desc) > 120 ? htmlspecialchars(mb_substr($desc,0,120)) . '...' : $desc; ?></p>
                   <div class="d-flex justify-content-between align-items-center">
                     <span class="text-muted small">From GHS<?php echo $price; ?></span>
-                    <?php if (!$loggedIn): ?>
-                      <a href="<?php echo $orderUrl; ?>" class="btn btn-sm order-btn">Order</a>
-                    <?php else: ?>
-                      <a href="#" class="btn btn-sm order-btn" onclick="event.preventDefault(); return false;" aria-disabled="true" role="button">Order</a>
-                    <?php endif; ?>
+                    <button class="btn btn-sm order-btn" onclick="addToCart(<?php echo $pid; ?>)">Add to Cart</button>
                   </div>
                 </div>
               </div>
@@ -305,6 +285,8 @@ if (empty($products)) {
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/checkout.js"></script>
   <!-- optional product search JS if you have it -->
   <script src="js/product_search.js"></script>
   <script>

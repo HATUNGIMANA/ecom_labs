@@ -75,26 +75,9 @@ if (!$product || empty($product)) {
             margin-bottom: 8px;
         }
     </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="index.php">
-                <i class="fas fa-utensils me-2"></i>Afro Bites Kitchen
-            </a>
-            <div class="ms-auto">
-                <a href="all_product.php" class="btn btn-outline-secondary btn-sm me-2">
-                    <i class="fas fa-arrow-left me-1"></i>Back to All Dishes
-                </a>
-                <?php if (is_logged_in()): ?>
-                    <a href="login/logout.php" class="btn btn-outline-danger btn-sm">Logout</a>
-                <?php else: ?>
-                    <a href="login/register.php" class="btn btn-outline-primary btn-sm me-2">Register</a>
-                    <a href="login/login.php" class="btn btn-outline-primary btn-sm">Login</a>
-                <?php endif; ?>
-            </div>
-        </div>
-    </nav>
+ </head>
+ <body>
+    <?php include __DIR__ . '/partials/navbar.php'; ?>
 
     <div class="container mb-5">
         <div class="row">
@@ -172,12 +155,9 @@ if (!$product || empty($product)) {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function addToCart(productId) {
-            alert('Add to cart functionality will be implemented soon! Product ID: ' + productId);
-            // Placeholder for cart functionality
-        }
-    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/checkout.js"></script>
 </body>
 </html>
 

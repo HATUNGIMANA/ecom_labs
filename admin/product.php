@@ -96,7 +96,7 @@ $categories = [];
           </div>
 
           <div class="mb-2">
-            <label for="product_price" class="form-label">Price (USD)</label>
+            <label for="product_price" class="form-label">Price (GHS)</label>
             <input id="product_price" name="product_price" class="form-control" required />
           </div>
 

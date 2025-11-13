@@ -38,10 +38,13 @@ if ($db->db_connect()) {
         :root {
             --accent: #b77a7a;
             --accent-dark: #a26363;
+            --card-bg: rgba(255,255,255,0.95);
         }
         body {
-            background-color: #f8f9fa;
-            font-family: Arial, sans-serif;
+            background-color: var(--accent);
+            color: #222;
+            font-family: Arial, Helvetica, sans-serif;
+            min-height: 100vh;
         }
         .navbar {
             background: rgba(255,255,255,0.96);
@@ -84,24 +87,9 @@ if ($db->db_connect()) {
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
     </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="index.php">
-                <i class="fas fa-utensils me-2"></i>Afro Bites Kitchen
-            </a>
-            <div class="ms-auto">
-                <a href="index.php" class="btn btn-outline-secondary btn-sm me-2">Home</a>
-                <?php if (is_logged_in()): ?>
-                    <a href="login/logout.php" class="btn btn-outline-danger btn-sm">Logout</a>
-                <?php else: ?>
-                    <a href="login/register.php" class="btn btn-outline-primary btn-sm me-2">Register</a>
-                    <a href="login/login.php" class="btn btn-outline-primary btn-sm">Login</a>
-                <?php endif; ?>
-            </div>
-        </div>
-    </nav>
+ </head>
+ <body>
+    <?php include __DIR__ . '/partials/navbar.php'; ?>
 
     <div class="container mb-5">
         <h1 class="mb-4"><i class="fas fa-utensils me-2"></i>All Dishes</h1>
@@ -215,12 +203,9 @@ if ($db->db_connect()) {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function addToCart(productId) {
-            alert('Add to cart functionality will be implemented soon! Product ID: ' + productId);
-            // Placeholder for cart functionality
-        }
-    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/checkout.js"></script>
 </body>
 </html>
 

@@ -37,8 +37,22 @@ $(document).ready(function() {
     // Determine post-login redirect target (priority: next param -> server-provided -> default index)
     function getRedirectTarget(responseData) {
         // 1) check URL query 'next'
-        const nextFromUrl = getQueryParam('next');
-        if (nextFromUrl) return nextFromUrl;
+        let nextFromUrl = getQueryParam('next');
+        if (nextFromUrl) {
+            // Normalize relative next for pages inside /login/ so that 'index.php' becomes '../index.php'
+            try {
+                // If it's an absolute URL or starts with a slash or already a relative path, leave it
+                if (!/^https?:\/\//i.test(nextFromUrl) && !nextFromUrl.startsWith('/') && !nextFromUrl.startsWith('../') && !nextFromUrl.startsWith('./')) {
+                    // If current page is inside a login folder, prefix one level up to reach site root
+                    if (window.location.pathname.indexOf('/login/') !== -1) {
+                        nextFromUrl = '../' + nextFromUrl;
+                    }
+                }
+            } catch (e) {
+                // fallback: leave nextFromUrl unchanged
+            }
+            return nextFromUrl;
+        }
 
         // 2) if server provided a next field in JSON, use it (some actions return this)
         if (responseData && typeof responseData.next === 'string' && responseData.next.trim() !== '') {
