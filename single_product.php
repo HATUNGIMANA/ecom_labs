@@ -85,7 +85,14 @@ if (!$product || empty($product)) {
             <div class="col-md-6 mb-4">
                 <div class="product-image-container">
                     <?php if (!empty($product['product_image'])): ?>
-                        <img src="<?php echo htmlspecialchars($product['product_image']); ?>" 
+                        <?php
+                            $pi = $product['product_image'];
+                            $pi_url = $pi;
+                            if (function_exists('site_base_url') && strpos($pi, '/') !== 0) {
+                                $pi_url = rtrim(site_base_url(), '/') . '/' . ltrim($pi, '/');
+                            }
+                        ?>
+                        <img src="<?php echo htmlspecialchars($pi_url); ?>" 
                              alt="<?php echo htmlspecialchars($product['product_title']); ?>" 
                              class="product-image">
                     <?php else: ?>

@@ -181,7 +181,14 @@ if ($db->db_connect()) {
                         <div class="card product-card h-100">
                             <div class="product-image">
                                 <?php if (!empty($product['product_image'])): ?>
-                                    <img src="<?php echo htmlspecialchars($product['product_image']); ?>" alt="<?php echo htmlspecialchars($product['product_title']); ?>">
+                                    <?php
+                                        $pi = $product['product_image'];
+                                        $pi_url = $pi;
+                                        if (function_exists('site_base_url') && strpos($pi, '/') !== 0) {
+                                            $pi_url = rtrim(site_base_url(), '/') . '/' . ltrim($pi, '/');
+                                        }
+                                    ?>
+                                    <img src="<?php echo htmlspecialchars($pi_url); ?>" alt="<?php echo htmlspecialchars($product['product_title']); ?>">
                                 <?php else: ?>
                                     <i class="fas fa-utensils fa-3x"></i>
                                 <?php endif; ?>

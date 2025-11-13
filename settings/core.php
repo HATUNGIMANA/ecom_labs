@@ -75,4 +75,16 @@ function get_user_role()
     return null;
 }
 
+/**
+ * Return the web-path base for the current application (trailing slash included).
+ * Example: if site is served at /Ecommerce/EcomLabs/index.php this returns '/Ecommerce/EcomLabs/'.
+ */
+function site_base_url()
+{
+    $script = $_SERVER['SCRIPT_NAME'] ?? '/';
+    $dir = rtrim(dirname($script), '/\\');
+    if ($dir === '' || $dir === '.') return '/';
+    return $dir . '/';
+}
+
 ?>

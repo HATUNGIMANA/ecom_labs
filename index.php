@@ -262,8 +262,14 @@ if (empty($products)) {
             <div class="product-item">
               <div class="meal-card h-100">
                 <?php if (!empty($img)): ?>
+                  <?php
+                    $img_url = $img;
+                    if (function_exists('site_base_url') && strpos($img, '/') !== 0) {
+                        $img_url = rtrim(site_base_url(), '/') . '/' . ltrim($img, '/');
+                    }
+                  ?>
                   <div style="height:160px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#fff;">
-                    <img src="<?php echo htmlspecialchars($img); ?>" alt="<?php echo $title; ?>" style="max-width:100%; max-height:160px; object-fit:cover;">
+                    <img src="<?php echo htmlspecialchars($img_url); ?>" alt="<?php echo $title; ?>" style="max-width:100%; max-height:160px; object-fit:cover;">
                   </div>
                 <?php else: ?>
                   <div class="meal-icon"><i class="fa fa-utensils"></i></div>
