@@ -146,7 +146,8 @@ if ($conn === false) {
 // Ensure product exists and optionally belongs to user (skip ownership check to be minimal)
 $stmt = $conn->prepare('UPDATE products SET product_image = ? WHERE product_id = ?');
 if (!$stmt) json_response(false, 'DB prepare failed');
-$stmt->bind_param('si', $relative_path, $product_id);
+// Store the web-accessible path in the DB (use $db_path computed above)
+$stmt->bind_param('si', $db_path, $product_id);
 if (!$stmt->execute()) {
     $err = $stmt->error;
     $stmt->close();
@@ -154,4 +155,4 @@ if (!$stmt->execute()) {
 }
 $stmt->close();
 
-json_response(true, 'Image uploaded', ['path' => $relative_path]);
+json_response(true, 'Image uploaded', ['path' => $db_path]);
