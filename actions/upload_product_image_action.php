@@ -104,41 +104,31 @@ $relative_path = 'uploads/u' . (int)$user_id . '/p' . (int)$product_id . '/' . $
 // If uploads folder is inside the server DOCUMENT_ROOT, store a document-root-relative path like '/uploads/..'
 // Otherwise, store a path relative to the application base (e.g. '/your-app-folder/uploads/...').
 $db_path = $relative_path; // fallback
-$uploads_base_rp = $uploads_base;
+// Compute web-accessible path based on the resolved uploads base directory.
+$uploads_base_rp = str_replace('\\','/', realpath($uploads_base));
+$db_path = '';
 $docroot_rp = false;
 if (!empty($_SERVER['DOCUMENT_ROOT'])) {
-    $docroot_rp = realpath(rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR));
-}
-$real_target_path = str_replace('\\','/', $real_target . '/' . $filename);
-
-if ($docroot_rp !== false) {
-    $docroot_rp = str_replace('\\','/', $docroot_rp);
-    $uploads_base_rp = str_replace('\\','/', $uploads_base_rp);
-    // If the uploads folder (or the file we wrote) is inside the document root, compute path from document root
-    if (strpos($real_target_path, $docroot_rp) === 0) {
-        $web_rel = substr($real_target_path, strlen($docroot_rp));
-        $web_rel = str_replace('\\','/', $web_rel);
-        if ($web_rel === '' || $web_rel[0] !== '/') $web_rel = '/' . ltrim($web_rel, '/');
-        $db_path = $web_rel;
-    }
+    $docroot_rp = str_replace('\\','/', realpath(rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR)) ?: '');
 }
 
-// If still not resolved to a docroot-relative path, try to express it relative to the app base URL if available
-if (empty($db_path) || strpos($db_path, 'uploads/') === 0) {
+// If uploads base is inside document root, make a docroot-relative web path
+if ($docroot_rp && $uploads_base_rp && strpos($uploads_base_rp, $docroot_rp) === 0) {
+    $web_uploads_base = substr($uploads_base_rp, strlen($docroot_rp));
+    $web_uploads_base = '/' . trim($web_uploads_base, '/');
+    $db_path = $web_uploads_base . '/u' . (int)$user_id . '/p' . (int)$product_id . '/' . $filename;
+    $db_path = preg_replace('#/+#','/', $db_path);
+} else {
+    // Not under document root — fall back to application base URL if available
     if (function_exists('site_base_url')) {
         $site_base = rtrim(site_base_url(), '/');
-        // build an app-root absolute path like '/appfolder/uploads/..'
         $db_path = $site_base . '/' . ltrim($relative_path, '/');
-        // normalize slashes
         $db_path = preg_replace('#/+#','/', $db_path);
     } else {
-        // fallback to forward-slash relative path
-        $db_path = str_replace('\\','/', $relative_path);
+        // fallback: use project-relative uploads path
+        $db_path = '/' . ltrim($relative_path, '/');
     }
 }
-
-// Ensure web path uses forward slashes
-$db_path = str_replace('\\','/', $db_path);
 
 // Update products table
 // Use db_class to get mysqli
