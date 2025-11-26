@@ -61,5 +61,27 @@ function openSimulatePayment(totalAmount) {
 
 // helper to call from checkout page
 function startCheckoutFlow(totalAmount) {
-  openSimulatePayment(totalAmount);
+  // Immediately create the order on the server, then redirect to Paystack.
+  var paystackUrl = 'https://paystack.shop/pay/y7vkzrjivd';
+  // show a quick full-page spinner while we create the order
+  var $overlay = $('<div class="sim-pay-overlay" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:2000;"></div>');
+  $overlay.append('<div class="text-center text-white"><div class="spinner-border text-light" role="status"></div><div class="mt-2">Preparing payment...</div></div>');
+  $('body').append($overlay);
+
+  $.ajax({ url: 'actions/process_checkout_action.php', method: 'POST', dataType: 'json', timeout: 20000 })
+    .done(function(resp){
+      try { $overlay.remove(); } catch(e){}
+      if (resp && resp.status === 'success') {
+        var url = paystackUrl;
+        if (resp.order_ref) url += '?order_ref=' + encodeURIComponent(resp.order_ref);
+        // redirect to Paystack
+        window.location.href = url;
+      } else {
+        var msg = (resp && (resp.message || resp.error)) ? (resp.message || resp.error) : 'Checkout failed';
+        alert(msg);
+      }
+    }).fail(function(){
+      try { $overlay.remove(); } catch(e){}
+      alert('Network error while creating order. Please try again.');
+    });
 }
