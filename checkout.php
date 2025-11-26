@@ -47,7 +47,7 @@ foreach ($items as $it) { $total += (isset($it['unit_price'])?(float)$it['unit_p
             <div>
               <strong>Total: GHS<?php echo number_format($total,2); ?></strong>
               <?php if (!empty($customer_id)): ?>
-                <button class="btn btn-primary ms-3" onclick="startCheckoutFlow(<?php echo number_format($total,2,'.',''); ?>)">Simulate Payment</button>
+                <button class="btn btn-primary ms-3" onclick="(function(){ var url = 'https://paystack.shop/pay/y7vkzrjivd'; window.open(url, '_blank'); startCheckoutFlow(<?php echo number_format($total,2,'.',''); ?>); })()">Simulate Payment</button>
               <?php else: ?>
                 <button class="btn btn-primary ms-3" data-bs-toggle="modal" data-bs-target="#loginRequiredModal">Proceed to Login</button>
               <?php endif; ?>
