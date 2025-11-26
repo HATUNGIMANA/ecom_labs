@@ -258,28 +258,6 @@ if ($db->db_connect()) {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="js/cart.js"></script>
     <script src="js/checkout.js"></script>
-        // Prevent name-only searches unless both category and brand are selected
-        document.addEventListener('DOMContentLoaded', function(){
-            var form = document.getElementById('refine-form');
-            if (!form) return;
-            form.addEventListener('submit', function(e){
-                try {
-                    var qInput = document.querySelector('input[name="q"]');
-                    var q = qInput ? qInput.value.trim() : '';
-                    var cat = (document.getElementById('refine-cat') || {}).value || '';
-                    var brand = (document.getElementById('refine-brand') || {}).value || '';
-                    if (q !== '' && (!cat || cat === '') && (!brand || brand === '')) {
-                        e.preventDefault();
-                        alert('Please select both a Category and a Brand before searching by name.');
-                        var el = document.getElementById('refine-cat');
-                        if (el) el.focus();
-                        return false;
-                    }
-                } catch (err) {
-                    // allow submission on JS error
-                }
-            });
-        });
     </script>
 </body>
 </html>
