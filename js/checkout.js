@@ -35,16 +35,16 @@ function openSimulatePayment(totalAmount) {
     $.ajax({ url: 'actions/process_checkout_action.php', method: 'POST', dataType: 'json', timeout: 20000 })
       .done(function(resp){
         if (resp && resp.status === 'success') {
-          // show success message inside modal and provide link
-          $('#sim-pay-feedback').html('<div class="alert alert-success">Payment simulated successfully. Order reference: <strong>' + (resp.order_ref||'') + '</strong></div>');
-          $btn.text('Done');
           // refresh mini-cart
           if (window.fetchCart) fetchCart();
-          // after short delay redirect to payment_success page
-          setTimeout(function(){
-            cleanUpModal();
-            window.location.href = 'payment_success.php?order_ref=' + encodeURIComponent(resp.order_ref || '');
-          }, 1200);
+          // redirect user to the Paystack payment page so they can complete (simulate) payment
+          var paystackUrl = 'https://paystack.shop/pay/y7vkzrjivd';
+          // include order reference so we can identify the order after redirect if needed
+          if (resp.order_ref) paystackUrl += '?order_ref=' + encodeURIComponent(resp.order_ref);
+          // cleanup modal and redirect
+          cleanUpModal();
+          window.location.href = paystackUrl;
+          return;
         } else {
           var msg = (resp && (resp.message || resp.error)) ? (resp.message || resp.error) : 'Checkout failed';
           $('#sim-pay-feedback').html('<div class="alert alert-danger">' + msg + '</div>');
