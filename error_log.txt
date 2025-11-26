@@ -28,3 +28,13 @@
 )
 
 [11-Nov-2025 03:06:01 Europe/Berlin] category_class::add_category - Success! New ID: 11
+[26-Nov-2025 02:08:32 Europe/Berlin] Trying path: C:\xampp\htdocs\Ecommerce\EcomLabs\actions/../controllers/category_controller.php
+[26-Nov-2025 02:08:32 Europe/Berlin] Successfully included: C:\xampp\htdocs\Ecommerce\EcomLabs\actions/../controllers/category_controller.php
+[26-Nov-2025 02:08:32 Europe/Berlin] category_class::add_category - Database connected successfully
+[26-Nov-2025 02:08:32 Europe/Berlin] category_class::add_category - Data: Array
+(
+    [cat_name] => Dinner
+    [customer_id] => 1
+)
+
+[26-Nov-2025 02:08:32 Europe/Berlin] category_class::add_category - Success! New ID: 12

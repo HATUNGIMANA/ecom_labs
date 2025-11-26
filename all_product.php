@@ -150,8 +150,19 @@ if ($db->db_connect()) {
                                     <?php
                                         $pi = $product['product_image'];
                                         $pi_url = $pi;
-                                        if (function_exists('site_base_url') && strpos($pi, '/') !== 0) {
-                                            $pi_url = rtrim(site_base_url(), '/') . '/' . ltrim($pi, '/');
+                                        $pi_url = str_replace('\\','/',$pi_url);
+                                        if (preg_match('#^https?://#i', $pi_url)) {
+                                            // absolute URL
+                                        } elseif (strpos($pi_url, '/') === 0) {
+                                            // root-relative
+                                        } elseif (strpos($pi_url, 'uploads/') !== false) {
+                                            $pos = strpos($pi_url, 'uploads/');
+                                            $pi_url = '/' . ltrim(substr($pi_url, $pos), '/');
+                                        } elseif (function_exists('site_base_url')) {
+                                            $pi_url = rtrim(site_base_url(), '/') . '/' . ltrim($pi_url, '/');
+                                            $pi_url = preg_replace('#/+#','/', $pi_url);
+                                        } else {
+                                            $pi_url = '/' . ltrim($pi_url, '/');
                                         }
                                     ?>
                                     <img src="<?php echo htmlspecialchars($pi_url); ?>" alt="<?php echo htmlspecialchars($product['product_title']); ?>">

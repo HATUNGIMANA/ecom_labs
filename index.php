@@ -262,12 +262,26 @@ if (empty($products)) {
             <div class="product-item">
               <div class="meal-card h-100">
                 <?php if (!empty($img)): ?>
-                  <?php
+                    <?php
+                    // Normalize image path to a web URL:
                     $img_url = $img;
-                    if (function_exists('site_base_url') && strpos($img, '/') !== 0) {
-                        $img_url = rtrim(site_base_url(), '/') . '/' . ltrim($img, '/');
+                    $img_url = str_replace('\\','/',$img_url);
+                    if (preg_match('#^https?://#i', $img_url)) {
+                      // absolute URL, leave as-is
+                    } elseif (strpos($img_url, '/') === 0) {
+                      // already root-relative (/uploads/...)
+                    } elseif (strpos($img_url, 'uploads/') !== false) {
+                      // stored as 'uploads/...' -> make it document-root-relative
+                      $pos = strpos($img_url, 'uploads/');
+                      $img_url = '/' . ltrim(substr($img_url, $pos), '/');
+                    } elseif (function_exists('site_base_url')) {
+                      // fallback: prefix with app base
+                      $img_url = rtrim(site_base_url(), '/') . '/' . ltrim($img_url, '/');
+                      $img_url = preg_replace('#/+#','/', $img_url);
+                    } else {
+                      $img_url = '/' . ltrim($img_url, '/');
                     }
-                  ?>
+                    ?>
                   <div style="height:160px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#fff;">
                     <img src="<?php echo htmlspecialchars($img_url); ?>" alt="<?php echo $title; ?>" style="max-width:100%; max-height:160px; object-fit:cover;">
                   </div>
