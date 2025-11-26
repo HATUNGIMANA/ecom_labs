@@ -112,11 +112,39 @@ if (!empty($_SERVER['DOCUMENT_ROOT'])) {
     $docroot_rp = str_replace('\\','/', realpath(rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR)) ?: '');
 }
 
-// Build a consistent root-relative web path for uploads. The server administrator
-// created an `uploads/` folder at the web root (sibling of this project). Use
-// a root-relative '/uploads/...' path so the browser will request the correct URL.
-$db_path = '/uploads/u' . (int)$user_id . '/p' . (int)$product_id . '/' . $filename;
-$db_path = preg_replace('#/+#','/', $db_path);
+// Compute a web-accessible path for the uploaded file.
+// If the uploads folder is located in a typical userdir (/home/{user}/public_html/uploads)
+// then the web path is '/~{user}/uploads/...'. Otherwise prefer document-root-relative
+// or app-base paths. This handles shared-host/UserDir setups where the project
+// is a sibling of uploads under the same user's public_html.
+$uploads_base_rp = str_replace('\\','/', realpath($uploads_base));
+$db_path = '';
+// userdir pattern: /home/{username}/public_html[/...]
+if (preg_match('#/home/([^/]+)/public_html#i', $uploads_base_rp, $m)) {
+    $username = $m[1];
+    $db_path = '/~' . $username . '/uploads/u' . (int)$user_id . '/p' . (int)$product_id . '/' . $filename;
+} else {
+    // if under DOCUMENT_ROOT, compute docroot-relative path
+    if (!empty($_SERVER['DOCUMENT_ROOT'])) {
+        $docroot_rp = str_replace('\\','/', realpath(rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR)) ?: '');
+        if ($docroot_rp !== '' && strpos($uploads_base_rp, $docroot_rp) === 0) {
+            $web_uploads = substr($uploads_base_rp, strlen($docroot_rp));
+            $web_uploads = '/' . trim($web_uploads, '/');
+            $db_path = $web_uploads . '/u' . (int)$user_id . '/p' . (int)$product_id . '/' . $filename;
+            $db_path = preg_replace('#/+#','/', $db_path);
+        }
+    }
+}
+// fallback: prefix with app base URL if still empty
+if (empty($db_path)) {
+    if (function_exists('site_base_url')) {
+        $db_path = rtrim(site_base_url(), '/') . '/uploads/u' . (int)$user_id . '/p' . (int)$product_id . '/' . $filename;
+        $db_path = preg_replace('#/+#','/', $db_path);
+    } else {
+        // as last resort use root-relative uploads
+        $db_path = '/uploads/u' . (int)$user_id . '/p' . (int)$product_id . '/' . $filename;
+    }
+}
 
 // Update products table
 // Use db_class to get mysqli
